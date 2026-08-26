@@ -35,6 +35,7 @@ export const firms: Firm[] = [
         paymentMethods: [
             "Bank Transfer",
             "UPI",
+            "Debit/Credit Card",
         ],
 
         bankDetails: {
@@ -44,7 +45,7 @@ export const firms: Firm[] = [
             ifsc: "HDFC0000387",
             branch: "Solan, H.P.",
             upi: "9816244669@upi",
-            upiQrCode: "/firms/uranote-holidays/qr.png",
+            upiQrCode: "/firms/uranote-holidays/qr.jpg",
         },
     },
 
@@ -75,28 +76,56 @@ export const firms: Firm[] = [
     },
 
     {
-        id: "mystical-himachal",
+        id: "mystical",
         name: "Mystical Himachal",
 
-        phone: "",
-        email: "",
-        website: "",
-        address: "",
-        logo: "",
+        phone: "+91 70188 09957",
+        email: "mysticalhimachaltravel@gmail.com",
+        website: "www.mysticalhimachal.com",
+        address: "Kashyap Complex, Second Floor, S.N 1, Jaunaji, Solan, HP (173212)",
+        logo: "/firms/mystical-himachal/logo.svg",
 
         paymentMethods: [
             "Bank Transfer",
             "UPI",
+            "Debit/Credit Card",
         ],
 
         bankDetails: {
-            accountName: "",
-            accountNumber: "",
-            bankName: "",
-            ifsc: "",
-            branch: "",
-            upi: "",
-            upiQrCode: "",
+            accountName: "Mystical Himcahal",
+            accountNumber: "50200092975718",
+            bankName: "HDFC Bank",
+            ifsc: "HDFC0000387",
+            branch: "Solan, H.P.",
+            upi: "9816244669@upi",
+            upiQrCode: "/firms/mystical-himachal/qr.jpg",
+        },
+    },
+
+    {
+        id: "nirvana",
+        name: "Nirvana Trips & Leisure",
+
+        phone: "+91 76784 65298",
+        email: "nirvanatrips04@gmail.com",
+        website: "www.nirvanatrips.in",
+        address: "Shop No 61 Aruna Nagar, Outer Ring Rd, near Gurudwara, Majnu-ka-tilla, New Delhi, Delhi 110054",
+        logo: "/firms/nirvana-trips/logo.png",
+
+        paymentMethods: [
+            "Bank Transfer",
+            "UPI",
+            "Debit/Credit Card",
+        ],
+
+        bankDetails: {
+            accountName: "Rajender kumar",
+            accountNumber: "91172010016095",
+            bankName: "Canara Bank",
+            ifsc: "CNRB0019117",
+            branch: "Nand Nagri, Delhi",
+            upi: "9313298708@ptsbi",
+            upiQrCode: "/firms/nirvana-trips/qr.jpg",
         },
     },
 ];

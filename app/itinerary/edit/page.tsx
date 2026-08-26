@@ -2,7 +2,12 @@
 
 import { exportItineraryPdf } from "@/lib/export/exportPdf";
 import { exportItineraryJson } from "@/lib/export/exportJson";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import {
+    Suspense,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -33,7 +38,7 @@ function ToolbarButton({
         <button
             type="button"
             onClick={onClick}
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-95"
+            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-95 sm:px-3 sm:py-2 sm:text-sm"
         >
             {children}
         </button>
@@ -137,6 +142,9 @@ function EditItineraryContent() {
     const [hotelEnabled, setHotelEnabled] = useState(false);
     const [hotels, setHotels] = useState<Hotel[]>([]);
 
+    const [firmSearch, setFirmSearch] = useState("");
+    const [showFirmResults, setShowFirmResults] = useState(false);
+
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -173,7 +181,15 @@ function EditItineraryContent() {
                 setEndDate(data.endDate ?? "");
                 setPax(data.pax ?? 2);
 
-                setFirmId(data.firmId ?? firms[0]?.id ?? "");
+                const loadedFirmId = data.firmId ?? firms[0]?.id ?? "";
+
+                setFirmId(loadedFirmId);
+
+                const loadedFirm = firms.find(
+                    (firm) => firm.id === loadedFirmId
+                );
+
+                setFirmSearch(loadedFirm?.name ?? "");
                 setRegionId(data.regionId ?? regions[0]?.id ?? "");
                 setServiceId(data.serviceId ?? services[0]?.id ?? "");
 
@@ -233,6 +249,16 @@ function EditItineraryContent() {
 
     const selectedService = services.find(
         (service) => service.id === serviceId
+    );
+
+    const selectedFirm = firms.find(
+        (firm) => firm.id === firmId
+    );
+
+    const filteredFirms = firms.filter((firm) =>
+        firm.name
+            .toLowerCase()
+            .includes(firmSearch.toLowerCase())
     );
 
     const addHotel = () => {
@@ -460,78 +486,80 @@ function EditItineraryContent() {
     return (
         <main className="min-h-screen bg-slate-50">
             {/* Header */}
-            <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur">
-                <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-6 px-6 py-3">
-                    <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            Itinerary Workspace
-                        </p>
+            <header className="border-b border-slate-200/80 bg-white shadow-sm">
+                <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 
-                        <h1 className="truncate text-xl font-bold tracking-tight text-slate-900">
-                            {title}
-                        </h1>
-
-                        {itinerary.updatedAt && (
-                            <p className="mt-0.5 text-xs text-slate-400">
-                                Last updated{" "}
-                                {new Date(
-                                    itinerary.updatedAt
-                                ).toLocaleString("en-IN")}
+                        {/* Title */}
+                        <div className="min-w-0 lg:flex-1">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px]">
+                                Itinerary Workspace
                             </p>
-                        )}
-                    </div>
 
-                    <button
-                        type="button"
-                        onClick={() => router.push("/")}
-                        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                        ← Dashboard
-                    </button>
+                            <h1 className="truncate text-base font-bold tracking-tight text-slate-900 sm:text-xl">
+                                {title}
+                            </h1>
 
-                    <div className="flex shrink-0 items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={handleDelete}
-                            disabled={deleting || saving}
-                            className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
-                        >
-                            {deleting
-                                ? "Deleting..."
-                                : "Delete"}
-                        </button>
+                            {itinerary.updatedAt && (
+                                <p className="mt-0.5 text-[10px] text-slate-400 sm:text-xs">
+                                    Last updated{" "}
+                                    {new Date(
+                                        itinerary.updatedAt
+                                    ).toLocaleString("en-IN")}
+                                </p>
+                            )}
+                        </div>
 
+                        {/* Actions */}
+                        <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
 
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            disabled={saving || deleting}
-                            className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {saving
-                                ? "Updating..."
-                                : "Update"}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={() => router.push("/")}
+                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                            >
+                               ← Dashboard
+                            </button>
 
-                        <button
-                            type="button"
-                            onClick={() =>
-                                exportItineraryJson(itinerary)
-                            }
-                            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                            Export JSON
-                        </button>
+                            <button
+                                type="button"
+                                onClick={handleDelete}
+                                disabled={deleting || saving}
+                                className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                            >
+                                {deleting ? "Deleting..." : "Delete"}
+                            </button>
 
-                        <button
-                            type="button"
-                            onClick={() =>
-                                exportItineraryPdf(itinerary)
-                            }
-                            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                            Export PDF
-                        </button>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                disabled={saving || deleting}
+                                className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
+                            >
+                                {saving ? "Updating..." : "Update"}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    exportItineraryJson(itinerary)
+                                }
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
+                            >
+                                JSON
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    exportItineraryPdf(itinerary)
+                                }
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
+                            >
+                                PDF
+                            </button>
+
+                        </div>
                     </div>
                 </div>
             </header>
@@ -660,27 +688,61 @@ function EditItineraryContent() {
                         </div>
 
                         {/* Firm */}
-                        <div>
+                        <div className="relative">
                             <label className="mb-1.5 block text-sm font-semibold text-slate-700">
                                 Firm
                             </label>
 
-                            <select
-                                value={firmId}
-                                onChange={(e) =>
-                                    setFirmId(e.target.value)
-                                }
-                                className={selectClass}
-                            >
-                                {firms.map((firm) => (
-                                    <option
-                                        key={firm.id}
-                                        value={firm.id}
-                                    >
-                                        {firm.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <input
+                                value={firmSearch}
+                                onChange={(e) => {
+                                    setFirmSearch(e.target.value);
+                                    setFirmId("");
+                                    setShowFirmResults(true);
+                                }}
+                                onFocus={() => setShowFirmResults(true)}
+                                onBlur={() => {
+                                    // Small delay so click on result can register
+                                    setTimeout(() => {
+                                        setShowFirmResults(false);
+                                    }, 150);
+                                }}
+                                placeholder="Search firm..."
+                                className={inputClass}
+                            />
+
+                            {showFirmResults && firmSearch.trim() && (
+                                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                                    {filteredFirms.length > 0 ? (
+                                        filteredFirms.map((firm) => (
+                                            <button
+                                                key={firm.id}
+                                                type="button"
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault();
+
+                                                    setFirmId(firm.id);
+                                                    setFirmSearch(firm.name);
+                                                    setShowFirmResults(false);
+                                                }}
+                                                className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
+                                            >
+                                                {firm.name}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="px-3 py-3 text-sm text-slate-500">
+                                            No firms found.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {firmId && selectedFirm && (
+                                <p className="mt-1.5 text-xs text-slate-400">
+                                    Selected: {selectedFirm.name}
+                                </p>
+                            )}
                         </div>
 
                         {/* Region */}
@@ -1178,8 +1240,8 @@ function EditItineraryContent() {
                 </section>
 
                 {/* Editor */}
-                <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md">
-                    <div className="border-b border-slate-200 bg-slate-50/95 p-2.5 backdrop-blur">
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-md">
+                    <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
                         <div className="flex flex-wrap items-center gap-1">
                             <ToolbarButton
                                 onClick={() =>
@@ -1296,6 +1358,19 @@ function EditItineraryContent() {
                     </div>
                 </section>
             </div>
+            <button
+                type="button"
+                onClick={() =>
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth",
+                    })
+                }
+                className="fixed bottom-5 right-5 z-50 rounded-full border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 shadow-lg transition hover:bg-slate-50"
+                aria-label="Back to top"
+            >
+                ↑
+            </button>
         </main>
     );
 }

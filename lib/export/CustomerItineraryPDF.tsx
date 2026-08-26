@@ -64,8 +64,8 @@ export const colors = {
     amber: "#C8923E",
     amberLight: "#F8F0E3",
 
-    text: "#263238",
-    textLight: "#66747A",
+    text: "#191c1e",
+    textLight: "#514040",
     muted: "#899398",
 
     border: "#E2E8E8",
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
         fontFamily: "Montserrat",
         fontSize: 8,
 
-        color: colors.muted,
+        color: colors.textLight,
 
         lineHeight: 1.3,
     },
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
         width: 12,
 
         fontFamily: "Montserrat",
-        fontSize: 10,
+        fontSize: 11,
 
         color: colors.amber,
 

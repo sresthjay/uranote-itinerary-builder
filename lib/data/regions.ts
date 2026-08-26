@@ -33,9 +33,9 @@ export const regions: Region[] = [
 
             "For complete tour packages, a 50% advance payment is required to confirm the booking.",
 
-            "The remaining balance is payable during the tour as per the agreed payment schedule.",
+            "The remaining balance is payable during the tour as per the payment schedule we'll share with you before the trip.",
 
-            "Once the payment is reflected in our account, we will share the company voucher and final itinerary.",
+            "Once the payment is reflected in our account, we will share the payment receipt & the reservation voucher (for hotels).",
 
             "Please share a screenshot of the payment confirmation with us for verification and faster processing.",
         ],
@@ -65,9 +65,9 @@ export const regions: Region[] = [
 
             "No refund will be provided for technical or mechanical issues affecting the taxi during the tour where an alternative arrangement or resolution is provided as per operational feasibility.",
 
-            "Token or booking amounts are non-refundable in all circumstances.",
+            "Token payments (10%) are non-refundable in all circumstances.",
 
-            "Approved refunds will be processed within 2 months from the date on which the refund is initiated.",
+            "Approved refunds will be processed within 1 months from the date on which the refund is initiated.",
         ],
 
         /*
@@ -89,8 +89,6 @@ export const regions: Region[] = [
 
             "The specific vehicle requested is subject to availability. If the requested vehicle is unavailable, a similar vehicle of comparable category may be provided.",
 
-            "If Kufri is included in your itinerary, please note that the Himalayan Nature Park remains closed on Tuesdays.",
-
             "Rohtang Pass sightseeing is subject to seasonal accessibility, weather conditions, government regulations, local permissions, and road conditions. Access may be restricted or unavailable during adverse weather or whenever authorities restrict tourist movement.",
 
             "Himachal Pradesh involves significant changes in altitude, temperature, and road conditions. Some travelers may experience discomfort such as headache, nausea, motion sickness, or stomach-related issues. Travelers are advised to carry any personal medicines they may require during the tour.",
@@ -111,7 +109,7 @@ export const regions: Region[] = [
 
             "The service provider will not be responsible for loss, theft, damage, or misplacement of personal belongings. Customers are responsible for keeping their valuables and personal belongings secure throughout the tour.",
 
-            "Air-conditioning may be switched off in certain hilly and high-altitude areas due to vehicle operating conditions, road conditions, or local regulations. Where applicable, additional charges for AC operation in such areas may be payable directly on the spot.",
+            "Air-conditioning will be switched off in certain hilly and high-altitude areas due to vehicle operating conditions, road conditions, or local regulations. Where applicable, additional charges for AC operation in such areas may be payable directly on the spot.",
 
             "For any assistance or service-related concern before or during the tour, please contact the contact details provided in your itinerary or voucher. Our team will make reasonable efforts to assist and resolve the issue at the earliest.",
         ],

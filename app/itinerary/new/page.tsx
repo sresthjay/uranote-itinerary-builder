@@ -29,7 +29,7 @@ function ToolbarButton({
         <button
             type="button"
             onClick={onClick}
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-95"
+            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-95 sm:px-3 sm:py-2 sm:text-sm"
         >
             {children}
         </button>
@@ -128,6 +128,18 @@ export default function NewItineraryPage() {
     const [hotels, setHotels] = useState<Hotel[]>([]);
 
     const [saving, setSaving] = useState(false);
+
+    const [firmSearch, setFirmSearch] = useState(
+        firms.find((firm) => firm.id === firmId)?.name ?? ""
+    );
+
+    const [showFirmResults, setShowFirmResults] = useState(false);
+
+    const filteredFirms = firms.filter((firm) =>
+        firm.name
+            .toLowerCase()
+            .includes(firmSearch.trim().toLowerCase())
+    );
 
     /*
      * Rich text editor.
@@ -393,34 +405,39 @@ export default function NewItineraryPage() {
     return (
         <main className="min-h-screen bg-slate-50">
             {/* Header */}
-            <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur">
-                <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-6 px-6 py-3">
-                    <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <header className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+
+                    <div className="min-w-0 lg:flex-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px]">
                             Itinerary Workspace
                         </p>
 
-                        <h1 className="truncate text-xl font-bold tracking-tight text-slate-900">
+                        <h1 className="truncate text-base font-bold tracking-tight text-slate-900 sm:text-xl">
                             {title}
                         </h1>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={() => router.push("/")}
-                        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                        ← Dashboard
-                    </button>
+                    <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
 
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="shrink-0 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        {saving ? "Saving..." : "Save Itinerary"}
-                    </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/")}
+                            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                        >
+                           ← Dashboard
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
+                        >
+                            {saving ? "Saving..." : "Save Itinerary"}
+                        </button>
+
+                    </div>
                 </div>
             </header>
 
@@ -550,29 +567,67 @@ export default function NewItineraryPage() {
                         </div>
 
                         {/* Firm */}
-                        <div>
+                        <div className="relative">
                             <label className="mb-1.5 block text-sm font-semibold text-slate-700">
                                 Firm
                             </label>
 
-                            <select
-                                value={firmId}
-                                onChange={(e) =>
-                                    setFirmId(
-                                        e.target.value
-                                    )
-                                }
-                                className={selectClass}
-                            >
-                                {firms.map((firm) => (
-                                    <option
-                                        key={firm.id}
-                                        value={firm.id}
-                                    >
-                                        {firm.name}
-                                    </option>
-                                ))}
-                            </select>
+                            <input
+                                value={firmSearch}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    setFirmSearch(value);
+                                    setShowFirmResults(true);
+
+                                    // Clear selected firm if the user changes the search
+                                    // without selecting another firm.
+                                    const exactMatch = firms.find(
+                                        (firm) =>
+                                            firm.name.toLowerCase() ===
+                                            value.trim().toLowerCase()
+                                    );
+
+                                    setFirmId(exactMatch?.id ?? "");
+                                }}
+                                onFocus={() => setShowFirmResults(true)}
+                                onBlur={() => {
+                                    // Small delay so clicking a result still works.
+                                    setTimeout(() => {
+                                        setShowFirmResults(false);
+                                    }, 150);
+                                }}
+                                placeholder="Search firm..."
+                                className={inputClass}
+                                autoComplete="off"
+                            />
+
+                            {showFirmResults && (
+                                <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                                    {filteredFirms.length > 0 ? (
+                                        filteredFirms.map((firm) => (
+                                            <button
+                                                key={firm.id}
+                                                type="button"
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault();
+
+                                                    setFirmId(firm.id);
+                                                    setFirmSearch(firm.name);
+                                                    setShowFirmResults(false);
+                                                }}
+                                                className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                            >
+                                                {firm.name}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="px-3 py-2.5 text-sm text-slate-500">
+                                            No matching firm found.
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Region */}
@@ -1077,8 +1132,8 @@ export default function NewItineraryPage() {
                 </section>
 
                 {/* Itinerary Content */}
-                <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md">
-                    <div className="border-b border-slate-200 bg-slate-50/95 p-2.5">
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-md">
+                    <div className="sticky top-0 z-20 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
                         <div className="flex flex-wrap items-center gap-1">
                             <ToolbarButton
                                 onClick={() =>
@@ -1195,6 +1250,19 @@ export default function NewItineraryPage() {
                     </div>
                 </section>
             </div>
+            <button
+                type="button"
+                onClick={() =>
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth",
+                    })
+                }
+                className="fixed bottom-5 right-5 z-50 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg transition hover:bg-slate-50 hover:shadow-xl"
+                aria-label="Back to top"
+            >
+                ↑
+            </button>
         </main>
     );
 }

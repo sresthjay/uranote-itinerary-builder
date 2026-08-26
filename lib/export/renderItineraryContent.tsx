@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: 400,
 
-        color: "#263238",
+        color: "#000000",
 
         lineHeight: 1.75,
 
