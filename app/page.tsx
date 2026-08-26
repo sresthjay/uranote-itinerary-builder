@@ -282,17 +282,17 @@ export default function HomePage() {
                 {/* Itinerary Cards */}
                 {!loading &&
                     filteredItineraries.length > 0 && (
-                        <div className="grid gap-4">
+                        <div className="grid min-w-0 gap-4">
                             {filteredItineraries.map(
                                 (itinerary) => (
                                     <article
                                         key={itinerary.id}
-                                        className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md sm:p-6"
+                                        className="group min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md sm:p-6"
                                     >
-                                        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                                        <div className="flex min-w-0 w-full flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                                             <Link
                                                 href={`/itinerary/edit?id=${itinerary.id}`}
-                                                className="min-w-0 flex-1"
+                                                className="min-w-0 w-full flex-1 overflow-hidden"
                                             >
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <h2 className="truncate text-base font-semibold tracking-tight text-gray-950 sm:text-lg">
@@ -312,7 +312,7 @@ export default function HomePage() {
                                                             Customer
                                                         </p>
 
-                                                        <p className="mt-0.5 text-sm font-medium text-gray-800">
+                                                        <p className="mt-0.5 break-words text-sm font-medium text-gray-800">
                                                             {
                                                                 itinerary.customerName
                                                             }
@@ -326,7 +326,7 @@ export default function HomePage() {
                                                             Destination
                                                         </p>
 
-                                                        <p className="mt-0.5 text-sm font-medium text-gray-800">
+                                                        <p className="mt-0.5 break-words text-sm font-medium text-gray-800">
                                                             {
                                                                 itinerary.destination
                                                             }
