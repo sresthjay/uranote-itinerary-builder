@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       # ------------------------------------------------------------
       # Checkout
       # ------------------------------------------------------------
@@ -37,55 +38,31 @@ jobs:
         run: npm ci
 
       # ------------------------------------------------------------
-      # Build Next.js application
+      # Build static Next.js application
       # ------------------------------------------------------------
 
       - name: Build application
         run: npm run build
 
       # ------------------------------------------------------------
-      # Verify standalone build
+      # Verify static export
       # ------------------------------------------------------------
 
-      - name: Verify standalone build
+      - name: Verify static build
         run: |
-          if [ ! -d ".next/standalone" ]; then
-            echo "ERROR: .next/standalone was not generated."
+          if [ ! -d "out" ]; then
+            echo "ERROR: out/ directory was not generated."
             exit 1
           fi
 
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "ERROR: server.js was not generated."
+          if [ ! -f "out/index.html" ]; then
+            echo "ERROR: out/index.html was not generated."
             exit 1
           fi
 
-          echo "Standalone build generated successfully."
+          echo "Static export generated successfully."
 
-          du -sh .next/standalone
-
-      # ------------------------------------------------------------
-      # Prepare deployment package
-      # ------------------------------------------------------------
-
-      - name: Prepare deployment package
-        run: |
-          rm -rf deploy
-          mkdir -p deploy
-
-          # Copy standalone application
-          cp -R .next/standalone/. deploy/
-
-          # Copy Next.js static assets
-          mkdir -p deploy/.next/static
-          cp -R .next/static/. deploy/.next/static/
-
-          # Copy public assets
-          if [ -d "public" ]; then
-            cp -R public deploy/public
-          fi
-
-          echo "Deployment package:"
-          du -sh deploy
+          du -sh out
 
       # ------------------------------------------------------------
       # Configure SSH
@@ -144,7 +121,7 @@ jobs:
             "mkdir -p '$HOSTINGER_DEPLOY_PATH'"
 
       # ------------------------------------------------------------
-      # Deploy
+      # Deploy static application
       # ------------------------------------------------------------
 
       - name: Deploy application
@@ -156,14 +133,14 @@ jobs:
         run: |
           rsync -az --delete \
             -e "ssh -p $HOSTINGER_SSH_PORT" \
-            deploy/ \
+            out/ \
             "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST:$HOSTINGER_DEPLOY_PATH/"
 
       # ------------------------------------------------------------
       # Verify deployment
       # ------------------------------------------------------------
 
-      - name: Verify deployed server
+      - name: Verify deployed files
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
@@ -173,9 +150,9 @@ jobs:
           ssh \
             -p "$HOSTINGER_SSH_PORT" \
             "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST" \
-            "test -f '$HOSTINGER_DEPLOY_PATH/server.js'"
+            "test -f '$HOSTINGER_DEPLOY_PATH/index.html'"
 
-          echo "server.js successfully deployed."
+          echo "index.html successfully deployed."
 
       # ------------------------------------------------------------
       # Deployment complete
