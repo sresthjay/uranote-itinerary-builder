@@ -38,7 +38,7 @@ export const vehicles: Vehicle[] = [
         id: "innova",
         name: "Toyota Innova",
         carrier: true,
-        seatingCapacity: 6,
+        seatingCapacity: 7,
     },
 
     {
