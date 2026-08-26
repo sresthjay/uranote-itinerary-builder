@@ -304,7 +304,7 @@ export default function HomePage() {
                                     >
                                         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                                             <Link
-                                                href={`/itinerary/${itinerary.id}`}
+                                                href={`/itinerary/edit?id=${itinerary.id}`}
                                                 className="min-w-0 flex-1"
                                             >
                                                 <div className="flex flex-wrap items-center gap-2">
@@ -382,7 +382,7 @@ export default function HomePage() {
 
                                             <div className="flex shrink-0 items-center gap-2 border-t border-gray-100 pt-4 lg:border-0 lg:pt-0">
                                                 <Link
-                                                    href={`/itinerary/${itinerary.id}`}
+                                                    href={`/itinerary/edit?id=${itinerary.id}`}
                                                     className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
                                                 >
                                                     Edit

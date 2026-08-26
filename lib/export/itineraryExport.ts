@@ -10,8 +10,8 @@ import { vehicles } from "@/lib/data/vehicles";
 | Build Customer-Facing Itinerary Export Data
 |--------------------------------------------------------------------------
 |
-| This function resolves all IDs stored in the itinerary into the
-| customer-facing data required by the PDF/export layer.
+| Resolves all IDs stored in the itinerary into customer-facing data
+| required by the PDF/export layer.
 |
 | Responsibilities:
 |
@@ -22,17 +22,16 @@ import { vehicles } from "@/lib/data/vehicles";
 | - Resolve selected package
 | - Combine service + region inclusions/exclusions
 | - Attach region-specific payment/cancellation policies
+| - Attach firm-specific payment details
 | - Attach region-specific terms
 | - Attach hotel information
 | - Expose firm metadata
-| - Expose itinerary creation/modification timestamps
+| - Expose itinerary timestamps
 |
 |--------------------------------------------------------------------------
 */
 
-export function buildItineraryExportData(
-    itinerary: Itinerary
-) {
+export function buildItineraryExportData(itinerary: Itinerary) {
     /*
     |--------------------------------------------------------------------------
     | Resolve Firm
@@ -105,11 +104,6 @@ export function buildItineraryExportData(
     |--------------------------------------------------------------------------
     | Resolve Package
     |--------------------------------------------------------------------------
-    |
-    | Package definition comes from the selected service.
-    | Package price comes from the itinerary because that is the
-    | finalized/customer-specific price.
-    |
     */
 
     const packageOption =
@@ -122,10 +116,6 @@ export function buildItineraryExportData(
     |--------------------------------------------------------------------------
     | Inclusions
     |--------------------------------------------------------------------------
-    |
-    | Service-level inclusions +
-    | Region-level inclusions
-    |
     */
 
     const inclusions = [
@@ -137,10 +127,6 @@ export function buildItineraryExportData(
     |--------------------------------------------------------------------------
     | Exclusions
     |--------------------------------------------------------------------------
-    |
-    | Service-level exclusions +
-    | Region-level exclusions
-    |
     */
 
     const exclusions = [
@@ -152,10 +138,6 @@ export function buildItineraryExportData(
     |--------------------------------------------------------------------------
     | Region Policies
     |--------------------------------------------------------------------------
-    |
-    | These are arrays because the PDF renders them as individual
-    | customer-facing points.
-    |
     */
 
     const paymentPolicy =
@@ -166,6 +148,47 @@ export function buildItineraryExportData(
 
     const terms =
         region?.terms ?? [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Firm Payment Details
+    |--------------------------------------------------------------------------
+    |
+    | Payment information belongs to the selected firm.
+    |
+    | This is intentionally separate from paymentPolicy.
+    |
+    */
+
+    const paymentDetails = {
+        paymentMethods:
+            firm?.paymentMethods ?? [],
+
+        bankDetails: firm?.bankDetails
+            ? {
+                accountName:
+                    firm.bankDetails.accountName ?? "",
+
+                accountNumber:
+                    firm.bankDetails.accountNumber ?? "",
+
+                bankName:
+                    firm.bankDetails.bankName ?? "",
+
+                ifsc:
+                    firm.bankDetails.ifsc ?? "",
+
+                branch:
+                    firm.bankDetails.branch ?? "",
+
+                upi:
+                    firm.bankDetails.upi ?? "",
+
+                upiQrCode:
+                    firm.bankDetails.upiQrCode ?? "",
+            }
+            : undefined,
+    };
 
     /*
     |--------------------------------------------------------------------------
@@ -208,16 +231,6 @@ export function buildItineraryExportData(
 
             pax:
                 itinerary.pax,
-
-            /*
-            |----------------------------------------------------------------------
-            | Document Metadata
-            |----------------------------------------------------------------------
-            |
-            | createdAt is permanent.
-            | updatedAt changes whenever the itinerary is modified.
-            |
-            */
 
             createdAt:
                 itinerary.createdAt,
@@ -264,7 +277,7 @@ export function buildItineraryExportData(
 
         /*
         |--------------------------------------------------------------------------
-        | Customer-Facing Policies & Terms
+        | Customer-Facing Policies
         |--------------------------------------------------------------------------
         */
 
@@ -273,6 +286,20 @@ export function buildItineraryExportData(
         exclusions,
 
         paymentPolicy,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Details
+        |--------------------------------------------------------------------------
+        |
+        | Firm-specific payment information.
+        |
+        | This should be rendered immediately after Payment Policy
+        | in the PDF.
+        |
+        */
+
+        paymentDetails,
 
         cancellationPolicy,
 
@@ -290,12 +317,6 @@ export function buildItineraryExportData(
         |--------------------------------------------------------------------------
         | Metadata
         |--------------------------------------------------------------------------
-        |
-        | Firm information is resolved from firms.ts.
-        | Region information is resolved from regions.ts.
-        | Service information is resolved from services.ts.
-        | Nothing is hardcoded here.
-        |
         */
 
         meta: {
@@ -322,6 +343,9 @@ export function buildItineraryExportData(
 
             firmWebsite:
                 firm?.website ?? "",
+
+            firmAddress:
+                firm?.address ?? "",
 
             regionName:
                 region?.name ?? "",

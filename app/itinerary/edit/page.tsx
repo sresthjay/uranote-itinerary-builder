@@ -2,8 +2,8 @@
 
 import { exportItineraryPdf } from "@/lib/export/exportPdf";
 import { exportItineraryJson } from "@/lib/export/exportJson";
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -103,11 +103,11 @@ const selectClass =
 const sectionClass =
     "mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md";
 
-export default function EditItineraryPage() {
-    const params = useParams();
+function EditItineraryContent() {
+    const searchParams = useSearchParams();
     const router = useRouter();
 
-    const id = params.id as string;
+    const id = searchParams.get("id");
 
     const [itinerary, setItinerary] = useState<Itinerary | null>(null);
     const [loading, setLoading] = useState(true);
@@ -148,9 +148,16 @@ export default function EditItineraryPage() {
     });
 
     useEffect(() => {
+        if (!id) {
+            router.push("/itinerary");
+            return;
+        }
+
+        const itineraryId = id;
+
         async function loadItinerary() {
             try {
-                const data = await getItinerary(id);
+                const data = await getItinerary(itineraryId);
 
                 if (!data) {
                     router.push("/itinerary");
@@ -474,6 +481,14 @@ export default function EditItineraryPage() {
                         )}
                     </div>
 
+                    <button
+                        type="button"
+                        onClick={() => router.push("/")}
+                        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                        ← Dashboard
+                    </button>
+
                     <div className="flex shrink-0 items-center gap-3">
                         <button
                             type="button"
@@ -485,6 +500,7 @@ export default function EditItineraryPage() {
                                 ? "Deleting..."
                                 : "Delete"}
                         </button>
+
 
                         <button
                             type="button"
@@ -499,7 +515,9 @@ export default function EditItineraryPage() {
 
                         <button
                             type="button"
-                            onClick={() => exportItineraryJson(itinerary)}
+                            onClick={() =>
+                                exportItineraryJson(itinerary)
+                            }
                             className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
                             Export JSON
@@ -507,7 +525,9 @@ export default function EditItineraryPage() {
 
                         <button
                             type="button"
-                            onClick={() => exportItineraryPdf(itinerary)}
+                            onClick={() =>
+                                exportItineraryPdf(itinerary)
+                            }
                             className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                         >
                             Export PDF
@@ -770,8 +790,7 @@ export default function EditItineraryPage() {
                                                     updateVehicle(
                                                         index,
                                                         "vehicleId",
-                                                        e.target
-                                                            .value
+                                                        e.target.value
                                                     )
                                                 }
                                                 className={selectClass}
@@ -825,8 +844,7 @@ export default function EditItineraryPage() {
                                                     updateVehicle(
                                                         index,
                                                         "price",
-                                                        e.target
-                                                            .value
+                                                        e.target.value
                                                     )
                                                 }
                                                 placeholder="₹ Quoted price"
@@ -1047,7 +1065,9 @@ export default function EditItineraryPage() {
                                         />
 
                                         <input
-                                            value={hotel.name ?? ""}
+                                            value={
+                                                hotel.name ?? ""
+                                            }
                                             onChange={(e) =>
                                                 updateHotel(
                                                     index,
@@ -1277,5 +1297,25 @@ export default function EditItineraryPage() {
                 </section>
             </div>
         </main>
+    );
+}
+
+export default function EditItineraryPage() {
+    return (
+        <Suspense
+            fallback={
+                <main className="flex min-h-screen items-center justify-center bg-slate-50">
+                    <div className="rounded-2xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm">
+                        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-slate-800" />
+
+                        <p className="text-sm font-medium text-slate-600">
+                            Loading itinerary...
+                        </p>
+                    </div>
+                </main>
+            }
+        >
+            <EditItineraryContent />
+        </Suspense>
     );
 }
