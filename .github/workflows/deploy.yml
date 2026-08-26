@@ -108,8 +108,6 @@ jobs:
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
         run: |
           ssh \
-            -o ConnectTimeout=15 \
-            -o BatchMode=yes \
             -p "$HOSTINGER_SSH_PORT" \
             "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST" \
             "echo 'SSH connection successful.'"
