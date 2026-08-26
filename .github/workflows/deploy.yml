@@ -37,65 +37,101 @@ jobs:
         run: npm ci
 
       # ------------------------------------------------------------
-      # Build static Next.js application
+      # Build Next.js application
       # ------------------------------------------------------------
 
       - name: Build application
         run: npm run build
 
       # ------------------------------------------------------------
-      # Verify export
+      # Verify standalone build
       # ------------------------------------------------------------
 
-      - name: Verify static export
+      - name: Verify standalone build
         run: |
-          if [ ! -d "out" ]; then
-            echo "ERROR: out directory was not generated."
+          if [ ! -d ".next/standalone" ]; then
+            echo "ERROR: .next/standalone was not generated."
             exit 1
           fi
 
-          echo "Static export generated successfully."
-          du -sh out
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "ERROR: server.js was not generated."
+            exit 1
+          fi
+
+          echo "Standalone build generated successfully."
+
+          du -sh .next/standalone
+
+      # ------------------------------------------------------------
+      # Prepare deployment package
+      # ------------------------------------------------------------
+
+      - name: Prepare deployment package
+        run: |
+          rm -rf deploy
+          mkdir -p deploy
+
+          # Copy standalone application
+          cp -R .next/standalone/. deploy/
+
+          # Copy Next.js static assets
+          mkdir -p deploy/.next/static
+          cp -R .next/static/. deploy/.next/static/
+
+          # Copy public assets
+          if [ -d "public" ]; then
+            cp -R public deploy/public
+          fi
+
+          echo "Deployment package:"
+          du -sh deploy
 
       # ------------------------------------------------------------
       # Configure SSH
       # ------------------------------------------------------------
 
       - name: Configure SSH
+        env:
+          HOSTINGER_SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
-          echo "${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "$HOSTINGER_SSH_PRIVATE_KEY" \
+            > ~/.ssh/id_ed25519
+
           chmod 600 ~/.ssh/id_ed25519
 
-          ssh-keyscan -p "${{ secrets.HOSTINGER_SSH_PORT }}" \
-            "${{ secrets.HOSTINGER_SSH_HOST }}" \
+          ssh-keyscan \
+            -p "$HOSTINGER_SSH_PORT" \
+            "$HOSTINGER_SSH_HOST" \
             >> ~/.ssh/known_hosts
 
           chmod 644 ~/.ssh/known_hosts
 
       # ------------------------------------------------------------
-      # Deploy via SSH / rsync
+      # Test SSH
       # ------------------------------------------------------------
 
-      - name: Deploy to Hostinger
+      - name: Test SSH connection
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
-          HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
         run: |
-          rsync -avz --delete \
-            -e "ssh -p ${HOSTINGER_SSH_PORT}" \
-            out/ \
-            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}:${HOSTINGER_DEPLOY_PATH}/"
+          ssh \
+            -p "$HOSTINGER_SSH_PORT" \
+            "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST" \
+            "echo 'SSH connection successful.'"
 
       # ------------------------------------------------------------
-      # Deployment verification
+      # Create deployment directory
       # ------------------------------------------------------------
 
-      - name: Verify deployment directory
+      - name: Prepare Hostinger directory
         env:
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
@@ -103,8 +139,50 @@ jobs:
           HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
         run: |
           ssh \
-            -p "${HOSTINGER_SSH_PORT}" \
-            "${HOSTINGER_SSH_USER}@${HOSTINGER_SSH_HOST}" \
-            "test -f '${HOSTINGER_DEPLOY_PATH}/index.html'"
+            -p "$HOSTINGER_SSH_PORT" \
+            "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST" \
+            "mkdir -p '$HOSTINGER_DEPLOY_PATH'"
 
-          echo "Deployment completed successfully."
+      # ------------------------------------------------------------
+      # Deploy
+      # ------------------------------------------------------------
+
+      - name: Deploy application
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -p $HOSTINGER_SSH_PORT" \
+            deploy/ \
+            "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST:$HOSTINGER_DEPLOY_PATH/"
+
+      # ------------------------------------------------------------
+      # Verify deployment
+      # ------------------------------------------------------------
+
+      - name: Verify deployed server
+        env:
+          HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          HOSTINGER_SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          ssh \
+            -p "$HOSTINGER_SSH_PORT" \
+            "$HOSTINGER_SSH_USER@$HOSTINGER_SSH_HOST" \
+            "test -f '$HOSTINGER_DEPLOY_PATH/server.js'"
+
+          echo "server.js successfully deployed."
+
+      # ------------------------------------------------------------
+      # Deployment complete
+      # ------------------------------------------------------------
+
+      - name: Deployment completed
+        run: |
+          echo "=========================================="
+          echo "Itinerary Builder deployed successfully."
+          echo "=========================================="
