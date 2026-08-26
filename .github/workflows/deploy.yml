@@ -73,21 +73,28 @@ jobs:
           HOSTINGER_SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
           HOSTINGER_SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           HOSTINGER_SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+        shell: bash
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          echo "HOME=$HOME"
+          echo "User=$(whoami)"
+          echo "Creating SSH directory..."
 
-          printf '%s\n' "$HOSTINGER_SSH_PRIVATE_KEY" \
-            > ~/.ssh/id_ed25519
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
 
-          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$HOSTINGER_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+
+          echo "Scanning Hostinger SSH host..."
 
           ssh-keyscan \
             -p "$HOSTINGER_SSH_PORT" \
             "$HOSTINGER_SSH_HOST" \
-            >> ~/.ssh/known_hosts
+            >> "$HOME/.ssh/known_hosts"
 
-          chmod 644 ~/.ssh/known_hosts
+          chmod 644 "$HOME/.ssh/known_hosts"
+
+          echo "SSH configuration completed."
 
       # ------------------------------------------------------------
       # Test SSH
