@@ -64,42 +64,42 @@ export const vehicles: Vehicle[] = [
 
     {
         id: "scorpio",
-        name: "Mahindra Scorpio",
+        name: "M Scorpio",
         carrier: true,
         seatingCapacity: 8,
     },
 
     {
         id: "tempo-traveller-12",
-        name: "Tempo Traveller 12+1",
+        name: "Traveller",
         carrier: true,
         seatingCapacity: 12,
     },
 
     {
         id: "tempo-traveller-16",
-        name: "Tempo Traveller 16+1",
+        name: "Traveller",
         carrier: true,
         seatingCapacity: 16,
     },
 
     {
         id: "tempo-traveller-20",
-        name: "Tempo Traveller 20+1",
+        name: "Traveller",
         carrier: true,
         seatingCapacity: 20,
     },
 
     {
         id: "urbania-12",
-        name: "Urbania 12+1",
+        name: "Urbania",
         carrier: true,
         seatingCapacity: 12,
     },
 
     {
         id: "urbania-16",
-        name: "Urbania 16+1",
+        name: "Urbania",
         carrier: true,
         seatingCapacity: 16,
     },

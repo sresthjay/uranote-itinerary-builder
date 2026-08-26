@@ -921,9 +921,6 @@ export default function NewItineraryPage() {
                                                                 vehicle.seatingCapacity
                                                             }{" "}
                                                             seats
-                                                            {vehicle.carrier
-                                                                ? " · Carrier"
-                                                                : ""}
                                                         </option>
                                                     )
                                                 )}

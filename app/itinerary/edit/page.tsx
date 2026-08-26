@@ -1065,9 +1065,6 @@ function EditItineraryContent() {
                                                                 vehicle.seatingCapacity
                                                             }{" "}
                                                             seats
-                                                            {vehicle.carrier
-                                                                ? " · Carrier"
-                                                                : ""}
                                                         </option>
                                                     )
                                                 )}
