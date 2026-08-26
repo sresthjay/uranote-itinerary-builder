@@ -50,27 +50,29 @@ export const firms: Firm[] = [
     },
 
     {
-        id: "explore-my-bharat",
+        id: "explore",
         name: "Explore My Bharat",
 
-        phone: "",
-        email: "",
-        website: "",
-        address: "",
-        logo: "",
+        phone: "+91 62305 57851",
+        email: "exploremybharat@gmail.com",
+        website: "www.exploremybharat.com",
+        address: "Kashyap Complex, Shop No. 3, Ser Charag, Jaunaji, Solan, Himachal Pradesh 173212",
+        logo: "/firms/explore-my-bharat/logo.jpeg",
 
         paymentMethods: [
             "Bank Transfer",
             "UPI",
+            "Debit/Credit Card",
+
         ],
 
         bankDetails: {
-            accountName: "",
-            accountNumber: "",
-            bankName: "",
-            ifsc: "",
-            branch: "",
-            upi: "",
+            accountName: "Explore My Bharat",
+            accountNumber: "409001680639",
+            bankName: "RBL Bank",
+            ifsc: "RATN0000319",
+            branch: "Solan, H.P.",
+            upi: "6230557851@upi",
             upiQrCode: "",
         },
     },
@@ -119,7 +121,7 @@ export const firms: Firm[] = [
         ],
 
         bankDetails: {
-            accountName: "Rajender kumar",
+            accountName: "Rajender Kumar",
             accountNumber: "91172010016095",
             bankName: "Canara Bank",
             ifsc: "CNRB0019117",

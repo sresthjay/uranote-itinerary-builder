@@ -248,9 +248,6 @@ export default function HomePage() {
                     itineraries.length === 0 && (
                         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                             <div className="flex flex-col items-center px-6 py-20 text-center">
-                                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-950 text-2xl font-light text-white shadow-lg">
-                                    +
-                                </div>
 
                                 <h2 className="text-lg font-semibold tracking-tight text-gray-950">
                                     No itineraries yet
