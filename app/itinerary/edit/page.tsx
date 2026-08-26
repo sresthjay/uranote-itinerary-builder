@@ -57,7 +57,7 @@ function calculateDuration(startDate: string, endDate: string) {
 
     const nights = Math.round(
         (end.getTime() - start.getTime()) /
-        (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24)
     );
 
     if (nights < 0) return "";
@@ -135,9 +135,17 @@ function EditItineraryContent() {
         VehicleOption[]
     >([]);
 
-    const [packageEnabled, setPackageEnabled] = useState(false);
-    const [packageId, setPackageId] = useState("");
-    const [packagePrice, setPackagePrice] = useState("");
+    /*
+     * IMPORTANT:
+     * db.ts defines packageOptions.price as STRING.
+     * Keep this state as string as well.
+     */
+    const [packageOptions, setPackageOptions] = useState<
+        {
+            packageId: string;
+            price: string;
+        }[]
+    >([]);
 
     const [hotelEnabled, setHotelEnabled] = useState(false);
     const [hotels, setHotels] = useState<Hotel[]>([]);
@@ -181,7 +189,8 @@ function EditItineraryContent() {
                 setEndDate(data.endDate ?? "");
                 setPax(data.pax ?? 2);
 
-                const loadedFirmId = data.firmId ?? firms[0]?.id ?? "";
+                const loadedFirmId =
+                    data.firmId ?? firms[0]?.id ?? "";
 
                 setFirmId(loadedFirmId);
 
@@ -190,27 +199,32 @@ function EditItineraryContent() {
                 );
 
                 setFirmSearch(loadedFirm?.name ?? "");
-                setRegionId(data.regionId ?? regions[0]?.id ?? "");
-                setServiceId(data.serviceId ?? services[0]?.id ?? "");
-
-                setVehicleEnabled(data.vehicleEnabled);
-                setVehicleOptions(data.vehicleOptions ?? []);
-
-                setPackageId(data.packageId ?? "");
-                setPackagePrice(
-                    data.packagePrice !== undefined
-                        ? String(data.packagePrice)
-                        : ""
+                setRegionId(
+                    data.regionId ?? regions[0]?.id ?? ""
+                );
+                setServiceId(
+                    data.serviceId ?? services[0]?.id ?? ""
                 );
 
-                setPackageEnabled(
-                    Boolean(
-                        data.packageId ||
-                        data.packagePrice !== undefined
-                    )
+                setVehicleEnabled(
+                    data.vehicleEnabled ?? false
+                );
+                setVehicleOptions(
+                    data.vehicleOptions ?? []
                 );
 
-                setHotelEnabled(data.hotelEnabled);
+                /*
+                 * Keep package price as string because db.ts
+                 * defines it as string.
+                 */
+                setPackageOptions(
+                    (data.packageOptions ?? []).map((option) => ({
+                        packageId: option.packageId ?? "",
+                        price: option.price ?? "",
+                    }))
+                );
+
+                setHotelEnabled(data.hotelEnabled ?? false);
                 setHotels(data.hotels ?? []);
 
                 if (editor) {
@@ -244,7 +258,12 @@ function EditItineraryContent() {
                 startDate,
                 endDate
             ),
-        [customerName, destination, startDate, endDate]
+        [
+            customerName,
+            destination,
+            startDate,
+            endDate,
+        ]
     );
 
     const selectedService = services.find(
@@ -284,9 +303,9 @@ function EditItineraryContent() {
             current.map((hotel, hotelIndex) =>
                 hotelIndex === index
                     ? {
-                        ...hotel,
-                        [field]: value,
-                    }
+                          ...hotel,
+                          [field]: value,
+                      }
                     : hotel
             )
         );
@@ -344,18 +363,73 @@ function EditItineraryContent() {
         );
     };
 
+    const addPackageOption = () => {
+        setPackageOptions((current) => [
+            ...current,
+            {
+                packageId: "",
+                price: "",
+            },
+        ]);
+    };
+
+    const updatePackageOption = (
+        index: number,
+        field: "packageId" | "price",
+        value: string
+    ) => {
+        setPackageOptions((current) =>
+            current.map((option, optionIndex) => {
+                if (optionIndex !== index) {
+                    return option;
+                }
+
+                /*
+                 * IMPORTANT:
+                 * Do NOT use Number(value) here.
+                 * packageOptions.price is a string in db.ts.
+                 */
+                return {
+                    ...option,
+                    [field]: value,
+                };
+            })
+        );
+    };
+
+    const removePackageOption = (index: number) => {
+        setPackageOptions((current) =>
+            current.filter(
+                (_, optionIndex) => optionIndex !== index
+            )
+        );
+    };
+
     const handleSave = async () => {
         if (!itinerary || !editor) return;
 
         const missingFields: string[] = [];
 
-        if (!customerName.trim()) missingFields.push("Customer Name");
-        if (!destination.trim()) missingFields.push("Destination");
-        if (!startDate) missingFields.push("Start Date");
-        if (!endDate) missingFields.push("End Date");
-        if (!firmId) missingFields.push("Firm");
-        if (!regionId) missingFields.push("Region");
-        if (!serviceId) missingFields.push("Service");
+        if (!customerName.trim())
+            missingFields.push("Customer Name");
+
+        if (!destination.trim())
+            missingFields.push("Destination");
+
+        if (!startDate)
+            missingFields.push("Start Date");
+
+        if (!endDate)
+            missingFields.push("End Date");
+
+        if (!firmId)
+            missingFields.push("Firm");
+
+        if (!regionId)
+            missingFields.push("Region");
+
+        if (!serviceId)
+            missingFields.push("Service");
 
         if (missingFields.length > 0) {
             alert(
@@ -391,25 +465,23 @@ function EditItineraryContent() {
 
                 vehicleOptions: vehicleEnabled
                     ? vehicleOptions.filter(
-                        (vehicle) => vehicle.vehicleId
-                    )
+                          (vehicle) =>
+                              vehicle.vehicleId
+                      )
                     : [],
 
-                packageId:
+                /*
+                 * packageOptions.price remains STRING
+                 * to match db.ts.
+                 */
+                packageOptions:
                     selectedService?.pricingModel ===
-                        "package" &&
-                        packageEnabled &&
-                        packageId
-                        ? packageId
-                        : undefined,
-
-                packagePrice:
-                    selectedService?.pricingModel ===
-                        "package" &&
-                        packageEnabled &&
-                        packagePrice
-                        ? Number(packagePrice)
-                        : undefined,
+                    "package"
+                        ? packageOptions.filter(
+                              (option) =>
+                                  option.packageId
+                          )
+                        : [],
 
                 hotelEnabled,
 
@@ -426,14 +498,18 @@ function EditItineraryContent() {
 
             setItinerary(updatedItinerary);
 
-            alert("Itinerary updated successfully.");
+            alert(
+                "Itinerary updated successfully."
+            );
         } catch (error) {
             console.error(
                 "Failed to update itinerary:",
                 error
             );
 
-            alert("Failed to update itinerary.");
+            alert(
+                "Failed to update itinerary."
+            );
         } finally {
             setSaving(false);
         }
@@ -460,7 +536,10 @@ function EditItineraryContent() {
                 error
             );
 
-            alert("Failed to delete itinerary.");
+            alert(
+                "Failed to delete itinerary."
+            );
+
             setDeleting(false);
         }
     };
@@ -489,7 +568,6 @@ function EditItineraryContent() {
             <header className="border-b border-slate-200/80 bg-white shadow-sm">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-
                         {/* Title */}
                         <div className="min-w-0 lg:flex-1">
                             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px]">
@@ -505,44 +583,57 @@ function EditItineraryContent() {
                                     Last updated{" "}
                                     {new Date(
                                         itinerary.updatedAt
-                                    ).toLocaleString("en-IN")}
+                                    ).toLocaleString(
+                                        "en-IN"
+                                    )}
                                 </p>
                             )}
                         </div>
 
                         {/* Actions */}
                         <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
-
                             <button
                                 type="button"
-                                onClick={() => router.push("/")}
+                                onClick={() =>
+                                    router.push("/")
+                                }
                                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
                             >
-                               ← Dashboard
+                                ← Dashboard
                             </button>
 
                             <button
                                 type="button"
                                 onClick={handleDelete}
-                                disabled={deleting || saving}
+                                disabled={
+                                    deleting || saving
+                                }
                                 className="rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
                             >
-                                {deleting ? "Deleting..." : "Delete"}
+                                {deleting
+                                    ? "Deleting..."
+                                    : "Delete"}
                             </button>
 
                             <button
                                 type="button"
                                 onClick={handleSave}
-                                disabled={saving || deleting}
+                                disabled={
+                                    saving || deleting
+                                }
                                 className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
                             >
-                                {saving ? "Updating..." : "Update"}
+                                {saving
+                                    ? "Updating..."
+                                    : "Update"}
                             </button>
 
                             <button
                                 type="button"
                                 onClick={() =>
-                                    exportItineraryJson(itinerary)
+                                    exportItineraryJson(
+                                        itinerary
+                                    )
                                 }
                                 className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
                             >
@@ -552,13 +643,14 @@ function EditItineraryContent() {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    exportItineraryPdf(itinerary)
+                                    exportItineraryPdf(
+                                        itinerary
+                                    )
                                 }
                                 className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
                             >
                                 PDF
                             </button>
-
                         </div>
                     </div>
                 </div>
@@ -573,7 +665,8 @@ function EditItineraryContent() {
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Customer, destination and trip configuration
+                            Customer, destination and trip
+                            configuration
                         </p>
                     </div>
 
@@ -595,14 +688,16 @@ function EditItineraryContent() {
                             />
                         </div>
 
-                        {/* Destination */}
+                        {/* Tour Name */}
                         <div>
                             <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                Destination *
+                                Tour Name *
                             </label>
 
                             <input
-                                value={destination ?? ""}
+                                value={
+                                    destination ?? ""
+                                }
                                 onChange={(e) =>
                                     setDestination(
                                         e.target.value
@@ -672,17 +767,41 @@ function EditItineraryContent() {
                             <input
                                 type="number"
                                 min={1}
-                                value={pax ?? 2}
-                                onChange={(e) =>
-                                    setPax(
-                                        Math.max(
-                                            1,
-                                            Number(
-                                                e.target.value
-                                            )
-                                        )
-                                    )
+                                value={
+                                    pax < 1
+                                        ? ""
+                                        : pax
                                 }
+                                onChange={(e) => {
+                                    const val =
+                                        e.target
+                                            .value;
+
+                                    if (val === "") {
+                                        setPax(0);
+                                    } else {
+                                        const num =
+                                            Number(
+                                                val
+                                            );
+
+                                        setPax(num);
+                                    }
+                                }}
+                                onBlur={(e) => {
+                                    const val =
+                                        Number(
+                                            e.target
+                                                .value
+                                        );
+
+                                    if (
+                                        val < 1 ||
+                                        isNaN(val)
+                                    ) {
+                                        setPax(1);
+                                    }
+                                }}
                                 className={inputClass}
                             />
                         </div>
@@ -696,53 +815,85 @@ function EditItineraryContent() {
                             <input
                                 value={firmSearch}
                                 onChange={(e) => {
-                                    setFirmSearch(e.target.value);
+                                    setFirmSearch(
+                                        e.target.value
+                                    );
                                     setFirmId("");
-                                    setShowFirmResults(true);
+                                    setShowFirmResults(
+                                        true
+                                    );
                                 }}
-                                onFocus={() => setShowFirmResults(true)}
+                                onFocus={() =>
+                                    setShowFirmResults(
+                                        true
+                                    )
+                                }
                                 onBlur={() => {
-                                    // Small delay so click on result can register
                                     setTimeout(() => {
-                                        setShowFirmResults(false);
+                                        setShowFirmResults(
+                                            false
+                                        );
                                     }, 150);
                                 }}
                                 placeholder="Search firm..."
                                 className={inputClass}
                             />
 
-                            {showFirmResults && firmSearch.trim() && (
-                                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
-                                    {filteredFirms.length > 0 ? (
-                                        filteredFirms.map((firm) => (
-                                            <button
-                                                key={firm.id}
-                                                type="button"
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
+                            {showFirmResults &&
+                                firmSearch.trim() && (
+                                    <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                                        {filteredFirms.length >
+                                        0 ? (
+                                            filteredFirms.map(
+                                                (
+                                                    firm
+                                                ) => (
+                                                    <button
+                                                        key={
+                                                            firm.id
+                                                        }
+                                                        type="button"
+                                                        onMouseDown={(
+                                                            e
+                                                        ) => {
+                                                            e.preventDefault();
 
-                                                    setFirmId(firm.id);
-                                                    setFirmSearch(firm.name);
-                                                    setShowFirmResults(false);
-                                                }}
-                                                className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
-                                            >
-                                                {firm.name}
-                                            </button>
-                                        ))
-                                    ) : (
-                                        <div className="px-3 py-3 text-sm text-slate-500">
-                                            No firms found.
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                                            setFirmId(
+                                                                firm.id
+                                                            );
+                                                            setFirmSearch(
+                                                                firm.name
+                                                            );
+                                                            setShowFirmResults(
+                                                                false
+                                                            );
+                                                        }}
+                                                        className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900"
+                                                    >
+                                                        {
+                                                            firm.name
+                                                        }
+                                                    </button>
+                                                )
+                                            )
+                                        ) : (
+                                            <div className="px-3 py-3 text-sm text-slate-500">
+                                                No firms
+                                                found.
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
-                            {firmId && selectedFirm && (
-                                <p className="mt-1.5 text-xs text-slate-400">
-                                    Selected: {selectedFirm.name}
-                                </p>
-                            )}
+                            {firmId &&
+                                selectedFirm && (
+                                    <p className="mt-1.5 text-xs text-slate-400">
+                                        Selected:{" "}
+                                        {
+                                            selectedFirm.name
+                                        }
+                                    </p>
+                                )}
                         </div>
 
                         {/* Region */}
@@ -760,14 +911,20 @@ function EditItineraryContent() {
                                 }
                                 className={selectClass}
                             >
-                                {regions.map((region) => (
-                                    <option
-                                        key={region.id}
-                                        value={region.id}
-                                    >
-                                        {region.name}
-                                    </option>
-                                ))}
+                                {regions.map(
+                                    (region) => (
+                                        <option
+                                            key={
+                                                region.id
+                                            }
+                                            value={
+                                                region.id
+                                            }
+                                        >
+                                            {region.name}
+                                        </option>
+                                    )
+                                )}
                             </select>
                         </div>
 
@@ -780,22 +937,32 @@ function EditItineraryContent() {
                             <select
                                 value={serviceId}
                                 onChange={(e) => {
-                                    setServiceId(e.target.value);
-                                    setVehicleOptions([]);
-                                    setPackageId("");
-                                    setPackagePrice("");
-                                    setPackageEnabled(false);
+                                    setServiceId(
+                                        e.target.value
+                                    );
+                                    setVehicleOptions(
+                                        []
+                                    );
+                                    setPackageOptions(
+                                        []
+                                    );
                                 }}
                                 className={selectClass}
                             >
-                                {services.map((service) => (
-                                    <option
-                                        key={service.id}
-                                        value={service.id}
-                                    >
-                                        {service.name}
-                                    </option>
-                                ))}
+                                {services.map(
+                                    (service) => (
+                                        <option
+                                            key={
+                                                service.id
+                                            }
+                                            value={
+                                                service.id
+                                            }
+                                        >
+                                            {service.name}
+                                        </option>
+                                    )
+                                )}
                             </select>
                         </div>
                     </div>
@@ -810,21 +977,27 @@ function EditItineraryContent() {
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Add one or more vehicle options with quoted prices.
+                                Add one or more vehicle
+                                options with quoted
+                                prices.
                             </p>
                         </div>
 
                         <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
                             <input
                                 type="checkbox"
-                                checked={vehicleEnabled}
+                                checked={
+                                    vehicleEnabled
+                                }
                                 onChange={(e) =>
                                     setVehicleEnabled(
-                                        e.target.checked
+                                        e.target
+                                            .checked
                                     )
                                 }
                                 className="h-4 w-4 rounded border-slate-300"
                             />
+
                             Include vehicle
                         </label>
                     </div>
@@ -832,13 +1005,17 @@ function EditItineraryContent() {
                     {vehicleEnabled && (
                         <div className="space-y-3">
                             {vehicleOptions.map(
-                                (option, index) => (
+                                (
+                                    option,
+                                    index
+                                ) => (
                                     <div
                                         key={index}
                                         className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm transition hover:border-slate-300 hover:bg-white md:grid-cols-[1fr_220px_auto]"
                                     >
                                         <div>
-                                            {index === 0 && (
+                                            {index ===
+                                                0 && (
                                                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                                                     Vehicle
                                                 </label>
@@ -848,21 +1025,30 @@ function EditItineraryContent() {
                                                 value={
                                                     option.vehicleId
                                                 }
-                                                onChange={(e) =>
+                                                onChange={(
+                                                    e
+                                                ) =>
                                                     updateVehicle(
                                                         index,
                                                         "vehicleId",
-                                                        e.target.value
+                                                        e
+                                                            .target
+                                                            .value
                                                     )
                                                 }
-                                                className={selectClass}
+                                                className={
+                                                    selectClass
+                                                }
                                             >
                                                 <option value="">
-                                                    Select vehicle
+                                                    Select
+                                                    vehicle
                                                 </option>
 
                                                 {vehicles.map(
-                                                    (vehicle) => (
+                                                    (
+                                                        vehicle
+                                                    ) => (
                                                         <option
                                                             key={
                                                                 vehicle.id
@@ -889,7 +1075,8 @@ function EditItineraryContent() {
                                         </div>
 
                                         <div>
-                                            {index === 0 && (
+                                            {index ===
+                                                0 && (
                                                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                                                     Price
                                                 </label>
@@ -902,15 +1089,21 @@ function EditItineraryContent() {
                                                     option.price ||
                                                     ""
                                                 }
-                                                onChange={(e) =>
+                                                onChange={(
+                                                    e
+                                                ) =>
                                                     updateVehicle(
                                                         index,
                                                         "price",
-                                                        e.target.value
+                                                        e
+                                                            .target
+                                                            .value
                                                     )
                                                 }
                                                 placeholder="₹ Quoted price"
-                                                className={inputClass}
+                                                className={
+                                                    inputClass
+                                                }
                                             />
                                         </div>
 
@@ -933,7 +1126,9 @@ function EditItineraryContent() {
 
                             <button
                                 type="button"
-                                onClick={addVehicle}
+                                onClick={
+                                    addVehicle
+                                }
                                 className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
                             >
                                 + Add Vehicle
@@ -942,120 +1137,203 @@ function EditItineraryContent() {
                     )}
                 </section>
 
-                {/* Package */}
+                {/* Package Pricing */}
                 {selectedService?.pricingModel ===
-                    "package" &&
-                    !packageEnabled && (
-                        <div className={sectionClass}>
+                    "package" && (
+                    <section
+                        className={
+                            sectionClass
+                        }
+                    >
+                        {packageOptions.length ===
+                        0 ? (
                             <div className="flex items-center justify-between gap-4">
                                 <div>
                                     <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                                        Package Pricing
-                                    </h2>
-
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        Optional package pricing for this itinerary.
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setPackageEnabled(true)
-                                    }
-                                    className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                                >
-                                    + Add Package Pricing
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                {selectedService?.pricingModel ===
-                    "package" &&
-                    packageEnabled && (
-                        <section className={sectionClass}>
-                            <div className="mb-5 flex items-center justify-between gap-4">
-                                <div>
-                                    <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                                        Package Pricing
-                                    </h2>
-
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        Package and quoted price for the itinerary.
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setPackageEnabled(false);
-                                        setPackageId("");
-                                        setPackagePrice("");
-                                    }}
-                                    className="text-sm font-medium text-red-600 transition hover:text-red-700 hover:underline"
-                                >
-                                    Remove package pricing
-                                </button>
-                            </div>
-
-                            <div className="grid gap-5 md:grid-cols-2">
-                                <div>
-                                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
                                         Package
-                                    </label>
+                                        Pricing
+                                    </h2>
 
-                                    <select
-                                        value={packageId}
-                                        onChange={(e) =>
-                                            setPackageId(
-                                                e.target.value
-                                            )
-                                        }
-                                        className={selectClass}
-                                    >
-                                        <option value="">
-                                            Select package (optional)
-                                        </option>
-
-                                        {selectedService.packageOptions?.map(
-                                            (option) => (
-                                                <option
-                                                    key={
-                                                        option.id
-                                                    }
-                                                    value={
-                                                        option.id
-                                                    }
-                                                >
-                                                    {option.name}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        Optional
+                                        package
+                                        pricing.
+                                    </p>
                                 </div>
 
-                                <div>
-                                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                        Package Price
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        value={packagePrice}
-                                        onChange={(e) =>
-                                            setPackagePrice(
-                                                e.target.value
-                                            )
-                                        }
-                                        placeholder="₹ Package price"
-                                        className={inputClass}
-                                    />
-                                </div>
+                                <button
+                                    type="button"
+                                    onClick={
+                                        addPackageOption
+                                    }
+                                    className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                                >
+                                    + Add Package
+                                    Pricing
+                                </button>
                             </div>
-                        </section>
-                    )}
+                        ) : (
+                            <>
+                                <div className="mb-5 flex items-center justify-between gap-4">
+                                    <div>
+                                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                                            Package
+                                            Pricing
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            Add
+                                            package
+                                            options
+                                            and
+                                            quoted
+                                            prices.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setPackageOptions(
+                                                []
+                                            )
+                                        }
+                                        className="text-sm font-medium text-red-600 hover:underline"
+                                    >
+                                        Remove package
+                                        pricing
+                                    </button>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {packageOptions.map(
+                                        (
+                                            option,
+                                            index
+                                        ) => (
+                                            <div
+                                                key={
+                                                    index
+                                                }
+                                                className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
+                                            >
+                                                <div>
+                                                    {index ===
+                                                        0 && (
+                                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                            Package
+                                                        </label>
+                                                    )}
+
+                                                    <select
+                                                        value={
+                                                            option.packageId
+                                                        }
+                                                        onChange={(
+                                                            e
+                                                        ) =>
+                                                            updatePackageOption(
+                                                                index,
+                                                                "packageId",
+                                                                e
+                                                                    .target
+                                                                    .value
+                                                            )
+                                                        }
+                                                        className={
+                                                            selectClass
+                                                        }
+                                                    >
+                                                        <option value="">
+                                                            Select
+                                                            package
+                                                        </option>
+
+                                                        {selectedService.packageOptions?.map(
+                                                            (
+                                                                packageOption
+                                                            ) => (
+                                                                <option
+                                                                    key={
+                                                                        packageOption.id
+                                                                    }
+                                                                    value={
+                                                                        packageOption.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        packageOption.name
+                                                                    }
+                                                                </option>
+                                                            )
+                                                        )}
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    {index ===
+                                                        0 && (
+                                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                            Price
+                                                        </label>
+                                                    )}
+
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        value={
+                                                            option.price
+                                                        }
+                                                        onChange={(
+                                                            e
+                                                        ) =>
+                                                            updatePackageOption(
+                                                                index,
+                                                                "price",
+                                                                e
+                                                                    .target
+                                                                    .value
+                                                            )
+                                                        }
+                                                        placeholder="₹ Package price"
+                                                        className={
+                                                            inputClass
+                                                        }
+                                                    />
+                                                </div>
+
+                                                <div className="flex items-end">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            removePackageOption(
+                                                                index
+                                                            )
+                                                        }
+                                                        className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            addPackageOption
+                                        }
+                                        className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                    >
+                                        + Add Another
+                                        Package
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </section>
+                )}
 
                 {/* Hotels */}
                 <section className={sectionClass}>
@@ -1066,167 +1344,226 @@ function EditItineraryContent() {
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Add hotel stays and meal plans to the itinerary.
+                                Add hotel stays and
+                                meal plans to the
+                                itinerary.
                             </p>
                         </div>
 
                         <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
                             <input
                                 type="checkbox"
-                                checked={hotelEnabled}
+                                checked={
+                                    hotelEnabled
+                                }
                                 onChange={(e) =>
                                     setHotelEnabled(
-                                        e.target.checked
+                                        e.target
+                                            .checked
                                     )
                                 }
                                 className="h-4 w-4 rounded border-slate-300"
                             />
+
                             Include hotel details
                         </label>
                     </div>
 
                     {hotelEnabled && (
                         <div className="space-y-4">
-                            {hotels.map((hotel, index) => (
-                                <div
-                                    key={index}
-                                    className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm"
-                                >
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <p className="text-sm font-bold text-slate-800">
-                                            Hotel {index + 1}
-                                        </p>
+                            {hotels.map(
+                                (
+                                    hotel,
+                                    index
+                                ) => (
+                                    <div
+                                        key={index}
+                                        className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm"
+                                    >
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <p className="text-sm font-bold text-slate-800">
+                                                Hotel{" "}
+                                                {index +
+                                                    1}
+                                            </p>
 
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                removeHotel(
-                                                    index
-                                                )
-                                            }
-                                            className="text-xs font-medium text-red-600 transition hover:text-red-700 hover:underline"
-                                        >
-                                            Remove
-                                        </button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeHotel(
+                                                        index
+                                                    )
+                                                }
+                                                className="text-xs font-medium text-red-600 transition hover:text-red-700 hover:underline"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+
+                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                            <input
+                                                value={
+                                                    hotel.destination
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "destination",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                placeholder="Destination"
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                value={
+                                                    hotel.name ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "name",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                placeholder="Hotel name"
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                type="date"
+                                                value={
+                                                    hotel.checkIn
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "checkIn",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                type="date"
+                                                value={
+                                                    hotel.checkOut
+                                                }
+                                                min={
+                                                    hotel.checkIn
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "checkOut",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                value={
+                                                    hotel.roomType ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "roomType",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                placeholder="Room type"
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <select
+                                                value={
+                                                    hotel.mealPlan ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "mealPlan",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                className={
+                                                    selectClass
+                                                }
+                                            >
+                                                <option value="">
+                                                    Select
+                                                    meal
+                                                    plan
+                                                </option>
+
+                                                <option value="EP">
+                                                    EP – Room
+                                                    Only
+                                                </option>
+
+                                                <option value="CP">
+                                                    CP –
+                                                    Breakfast
+                                                </option>
+
+                                                <option value="MAP">
+                                                    MAP –
+                                                    Breakfast
+                                                    + Dinner
+                                                </option>
+
+                                                <option value="AP">
+                                                    AP –
+                                                    Breakfast
+                                                    + Lunch
+                                                    + Dinner
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
-
-                                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                        <input
-                                            value={
-                                                hotel.destination
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "destination",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Destination"
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            value={
-                                                hotel.name ?? ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "name",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Hotel name"
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            type="date"
-                                            value={
-                                                hotel.checkIn
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "checkIn",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            type="date"
-                                            value={
-                                                hotel.checkOut
-                                            }
-                                            min={
-                                                hotel.checkIn
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "checkOut",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            value={
-                                                hotel.roomType ??
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "roomType",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Room type"
-                                            className={inputClass}
-                                        />
-
-                                        <select
-                                            value={
-                                                hotel.mealPlan ??
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "mealPlan",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className={selectClass}
-                                        >
-                                            <option value="">
-                                                Select meal plan
-                                            </option>
-
-                                            <option value="EP">
-                                                EP – Room Only
-                                            </option>
-
-                                            <option value="CP">
-                                                CP – Breakfast
-                                            </option>
-
-                                            <option value="MAP">
-                                                MAP – Breakfast + Dinner
-                                            </option>
-
-                                            <option value="AP">
-                                                AP – Breakfast + Lunch + Dinner
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            )}
 
                             <button
                                 type="button"
@@ -1241,7 +1578,7 @@ function EditItineraryContent() {
 
                 {/* Editor */}
                 <section className="rounded-2xl border border-slate-200 bg-white shadow-md">
-                    <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
+                    <div className="sticky top-0 z-50 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
                         <div className="flex flex-wrap items-center gap-1">
                             <ToolbarButton
                                 onClick={() =>
@@ -1353,11 +1690,14 @@ function EditItineraryContent() {
 
                     <div className="min-h-[700px] bg-slate-100/70 p-6 md:p-10">
                         <div className="mx-auto min-h-[620px] max-w-4xl rounded-xl bg-white px-8 py-10 shadow-sm ring-1 ring-slate-200 md:px-12 md:py-12">
-                            <EditorContent editor={editor} />
+                            <EditorContent
+                                editor={editor}
+                            />
                         </div>
                     </div>
                 </section>
             </div>
+
             <button
                 type="button"
                 onClick={() =>

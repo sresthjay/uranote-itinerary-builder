@@ -34,9 +34,11 @@ export interface Itinerary {
   vehicleEnabled: boolean;
   vehicleOptions: VehicleOption[];
 
-  packageId?: string;
-  packagePrice?: number;
-
+  packageOptions?: {
+    packageId: string;
+    price: string;
+  }[];
+  
   hotelEnabled: boolean;
   hotels?: Hotel[];
 

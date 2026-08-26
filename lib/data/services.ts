@@ -79,15 +79,15 @@ export const services: Service[] = [
         packageOptions: [
             {
                 id: "deluxe",
-                name: "Deluxe",
+                name: "Deluxe Package",
             },
             {
                 id: "three-star",
-                name: "3 Star",
+                name: "3 Star Package",
             },
             {
                 id: "luxury",
-                name: "Luxury",
+                name: "Luxury Package",
             },
         ],
     },

@@ -576,10 +576,10 @@ const styles = StyleSheet.create({
     },
 
     /*
-|--------------------------------------------------------------------------
-| Payment Details
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Payment Details
+    |--------------------------------------------------------------------------
+    */
 
     paymentDetailsCard: {
         marginTop: 4,
@@ -742,9 +742,6 @@ function formatDate(date: string) {
 |--------------------------------------------------------------------------
 | Format DateTime
 |--------------------------------------------------------------------------
-|
-| Used for document creation/modification timestamps.
-|
 */
 
 function formatDateTime(date?: string) {
@@ -763,16 +760,43 @@ function formatDateTime(date?: string) {
     });
 }
 
-function formatCurrency(value?: number) {
+/*
+|--------------------------------------------------------------------------
+| Currency
+|--------------------------------------------------------------------------
+|
+| Supports both numbers and numeric strings.
+|--------------------------------------------------------------------------
+*/
+
+function formatCurrency(
+    value?: number | string
+) {
     if (
         value === undefined ||
         value === null ||
-        value <= 0
+        value === ""
     ) {
         return "";
     }
 
-    return `₹${value.toLocaleString("en-IN")}`;
+    const numericValue =
+        typeof value === "string"
+            ? Number(
+                value.replace(/[₹,\s]/g, "")
+            )
+            : value;
+
+    if (
+        Number.isNaN(numericValue) ||
+        numericValue <= 0
+    ) {
+        return "";
+    }
+
+    return `₹${numericValue.toLocaleString(
+        "en-IN"
+    )}`;
 }
 
 function normalizeList(
@@ -794,15 +818,6 @@ function normalizeList(
 |--------------------------------------------------------------------------
 | Resolve Logo
 |--------------------------------------------------------------------------
-|
-| react-pdf is more reliable when image paths are absolute.
-|
-| Supports:
-| - https://...
-| - data:image/...
-| - /logos/...
-| - logos/...
-|
 */
 
 function resolveImageSource(
@@ -818,7 +833,6 @@ function resolveImageSource(
         return null;
     }
 
-    // Already an absolute URL or data URI.
     if (
         value.startsWith("http://") ||
         value.startsWith("https://") ||
@@ -827,7 +841,6 @@ function resolveImageSource(
         return value;
     }
 
-    // Browser-side export.
     if (typeof window !== "undefined") {
         const path = value.startsWith("/")
             ? value
@@ -836,7 +849,6 @@ function resolveImageSource(
         return `${window.location.origin}${path}`;
     }
 
-    // SSR fallback.
     return value.startsWith("/")
         ? value
         : `/${value}`;
@@ -901,15 +913,6 @@ export function buildItineraryPdfFileName(
 
     const itineraryText =
         data.itinerary.content || "";
-
-    /*
-     * Extract duration from the itinerary if available.
-     *
-     * Expected examples:
-     * 8N 9D
-     * 8 N 9 D
-     * 8 nights 9 days
-     */
 
     const durationMatch =
         itineraryText.match(
@@ -1038,17 +1041,27 @@ export function CustomerItineraryPDF({
         data.cancellationPolicy.length > 0 ||
         terms.length > 0;
 
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANT:
+    | quotation.packages is an ARRAY.
+    |--------------------------------------------------------------------------
+    */
+
     const hasQuotation =
         data.quotation.vehicles.length > 0 ||
-        Boolean(data.quotation.package);
+        data.quotation.packages.length > 0;
 
     const logoSource = resolveImageSource(
         data.meta.logo
     );
 
-    const paymentQrSource = resolveImageSource(
-        data.paymentDetails?.bankDetails?.upiQrCode
-    );
+    const paymentQrSource =
+        resolveImageSource(
+            data.paymentDetails
+                ?.bankDetails
+                ?.upiQrCode
+        );
 
     const createdDate = formatDateTime(
         data.trip.createdAt
@@ -1057,13 +1070,6 @@ export function CustomerItineraryPDF({
     const modifiedDate = formatDateTime(
         data.trip.updatedAt
     );
-
-    console.log("PDF LOGO:", logoSource);
-    console.log(
-        "PDF QR:",
-        data.paymentDetails?.bankDetails?.upiQrCode
-    );
-    console.log("PDF QR SOURCE:", paymentQrSource);
 
     return (
         <Document>
@@ -1092,15 +1098,19 @@ export function CustomerItineraryPDF({
 
                         {(data.meta.firmPhone ||
                             data.meta.firmEmail) && (
-                                <Text style={styles.headerContact}>
-                                    {[
-                                        data.meta.firmPhone,
-                                        data.meta.firmEmail,
-                                    ]
-                                        .filter(Boolean)
-                                        .join("  ·  ")}
-                                </Text>
-                            )}
+                            <Text
+                                style={
+                                    styles.headerContact
+                                }
+                            >
+                                {[
+                                    data.meta.firmPhone,
+                                    data.meta.firmEmail,
+                                ]
+                                    .filter(Boolean)
+                                    .join("  ·  ")}
+                            </Text>
+                        )}
                     </View>
 
                     {logoSource && (
@@ -1122,7 +1132,11 @@ export function CustomerItineraryPDF({
                 ======================================================== */}
 
                 <View style={styles.tourNameSection}>
-                    <Text style={styles.tourNameLabel}>
+                    <Text
+                        style={
+                            styles.tourNameLabel
+                        }
+                    >
                         Tour Name
                     </Text>
 
@@ -1130,10 +1144,19 @@ export function CustomerItineraryPDF({
                         {data.trip.destination}
                     </Text>
 
-                    {(createdDate || modifiedDate) && (
-                        <View style={styles.documentDates}>
+                    {(createdDate ||
+                        modifiedDate) && (
+                        <View
+                            style={
+                                styles.documentDates
+                            }
+                        >
                             {createdDate && (
-                                <Text style={styles.documentDate}>
+                                <Text
+                                    style={
+                                        styles.documentDate
+                                    }
+                                >
                                     Created: {createdDate}
                                 </Text>
                             )}
@@ -1150,7 +1173,11 @@ export function CustomerItineraryPDF({
                                 )}
 
                             {modifiedDate && (
-                                <Text style={styles.documentDate}>
+                                <Text
+                                    style={
+                                        styles.documentDate
+                                    }
+                                >
                                     Modified: {modifiedDate}
                                 </Text>
                             )}
@@ -1163,7 +1190,11 @@ export function CustomerItineraryPDF({
                 ======================================================== */}
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>
+                    <Text
+                        style={
+                            styles.sectionTitle
+                        }
+                    >
                         Trip Details
                     </Text>
 
@@ -1174,11 +1205,19 @@ export function CustomerItineraryPDF({
                                     styles.infoItemLeft
                                 }
                             >
-                                <Text style={styles.label}>
+                                <Text
+                                    style={
+                                        styles.label
+                                    }
+                                >
                                     Traveler
                                 </Text>
 
-                                <Text style={styles.value}>
+                                <Text
+                                    style={
+                                        styles.value
+                                    }
+                                >
                                     {data.trip
                                         .customerName ||
                                         "—"}
@@ -1190,11 +1229,19 @@ export function CustomerItineraryPDF({
                                     styles.infoItemRight
                                 }
                             >
-                                <Text style={styles.label}>
+                                <Text
+                                    style={
+                                        styles.label
+                                    }
+                                >
                                     Travel Dates
                                 </Text>
 
-                                <Text style={styles.value}>
+                                <Text
+                                    style={
+                                        styles.value
+                                    }
+                                >
                                     {formatDate(
                                         data.trip
                                             .startDate
@@ -1219,11 +1266,19 @@ export function CustomerItineraryPDF({
                                     styles.infoItemLeft
                                 }
                             >
-                                <Text style={styles.label}>
+                                <Text
+                                    style={
+                                        styles.label
+                                    }
+                                >
                                     Travelers
                                 </Text>
 
-                                <Text style={styles.value}>
+                                <Text
+                                    style={
+                                        styles.value
+                                    }
+                                >
                                     {data.trip.pax} Pax
                                 </Text>
                             </View>
@@ -1233,12 +1288,21 @@ export function CustomerItineraryPDF({
                                     styles.infoItemRight
                                 }
                             >
-                                <Text style={styles.label}>
+                                <Text
+                                    style={
+                                        styles.label
+                                    }
+                                >
                                     Service
                                 </Text>
 
-                                <Text style={styles.value}>
-                                    {data.meta.serviceName ||
+                                <Text
+                                    style={
+                                        styles.value
+                                    }
+                                >
+                                    {data.meta
+                                        .serviceName ||
                                         "—"}
                                 </Text>
                             </View>
@@ -1247,12 +1311,16 @@ export function CustomerItineraryPDF({
                 </View>
 
                 {/* ========================================================
-                    INITIAL QUOTATION
+                    QUOTATION / TRAVEL ARRANGEMENT
                 ======================================================== */}
 
                 {hasQuotation && (
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>
+                        <Text
+                            style={
+                                styles.sectionTitle
+                            }
+                        >
                             Quotation Details
                         </Text>
 
@@ -1275,6 +1343,10 @@ export function CustomerItineraryPDF({
                                 </Text>
                             </View>
 
+                            {/* ====================================================
+                                VEHICLES
+                            ==================================================== */}
+
                             {data.quotation.vehicles.map(
                                 (
                                     vehicle,
@@ -1282,14 +1354,16 @@ export function CustomerItineraryPDF({
                                 ) => {
                                     const isLast =
                                         index ===
+                                            data
+                                                .quotation
+                                                .vehicles
+                                                .length -
+                                            1 &&
                                         data
                                             .quotation
-                                            .vehicles
-                                            .length -
-                                        1 &&
-                                        !data
-                                            .quotation
-                                            .package;
+                                            .packages
+                                            .length ===
+                                            0;
 
                                     return (
                                         <View
@@ -1336,49 +1410,67 @@ export function CustomerItineraryPDF({
                                 }
                             )}
 
-                            {data.quotation.package && (
-                                <View
-                                    style={[
-                                        styles.quotationDetailRow,
-                                        styles.quoteRowLast,
-                                    ]}
-                                    wrap={false}
-                                >
-                                    <Text
-                                        style={
-                                            styles.quotationDetailLabel
-                                        }
-                                    >
-                                        Package:
-                                    </Text>
+                            {/* ====================================================
+                                PACKAGES
+                                Rendered directly below vehicles
+                            ==================================================== */}
 
-                                    <Text
-                                        style={
-                                            styles.quotationDetailValue
-                                        }
-                                    >
-                                        {
-                                            data
-                                                .quotation
-                                                .package
-                                                .name
-                                        }{" "}
-                                        Package
-                                    </Text>
+                            {data.quotation.packages.map(
+                                (
+                                    pkg,
+                                    index
+                                ) => {
+                                    const isLast =
+                                        index ===
+                                        data
+                                            .quotation
+                                            .packages
+                                            .length -
+                                        1;
 
-                                    <Text
-                                        style={
-                                            styles.quotationDetailPrice
-                                        }
-                                    >
-                                        {formatCurrency(
-                                            data
-                                                .quotation
-                                                .package
-                                                .price
-                                        )}
-                                    </Text>
-                                </View>
+                                    return (
+                                        <View
+                                            key={
+                                                pkg.packageId
+                                            }
+                                            style={[
+                                                styles.quotationDetailRow,
+                                                isLast
+                                                    ? styles.quoteRowLast
+                                                    : {},
+                                            ]}
+                                            wrap={false}
+                                        >
+                                            <Text
+                                                style={
+                                                    styles.quotationDetailLabel
+                                                }
+                                            >
+                                                Package:
+                                            </Text>
+
+                                            <Text
+                                                style={
+                                                    styles.quotationDetailValue
+                                                }
+                                            >
+                                                {
+                                                    pkg.name
+                                                }
+                                            </Text>
+
+                                            <Text
+                                                style={
+                                                    styles.quotationDetailPrice
+                                                }
+                                            >
+                                                {formatCurrency(
+                                                    pkg.price
+                                                )}
+                                            </Text>
+                                        </View>
+                                    );
+                                }
                             )}
                         </View>
                     </View>
@@ -1390,9 +1482,15 @@ export function CustomerItineraryPDF({
 
                 {data.hotels.length > 0 && (
                     <View
-                        style={styles.hotelSection}
+                        style={
+                            styles.hotelSection
+                        }
                     >
-                        <Text style={styles.sectionTitle}>
+                        <Text
+                            style={
+                                styles.sectionTitle
+                            }
+                        >
                             Stay Details
                         </Text>
 
@@ -1400,7 +1498,9 @@ export function CustomerItineraryPDF({
                             (hotel, index) => (
                                 <View
                                     key={index}
-                                    style={styles.hotel}
+                                    style={
+                                        styles.hotel
+                                    }
                                     wrap={false}
                                 >
                                     <Text
@@ -1472,7 +1572,9 @@ export function CustomerItineraryPDF({
                 ======================================================== */}
 
                 <View
-                    style={styles.itinerarySection}
+                    style={
+                        styles.itinerarySection
+                    }
                 >
                     <Text
                         style={
@@ -1494,365 +1596,405 @@ export function CustomerItineraryPDF({
                 {(inclusions.length > 0 ||
                     exclusions.length > 0 ||
                     hasPolicies) && (
-                        <View style={styles.termsSection}>
-                            <Text
+                    <View
+                        style={
+                            styles.termsSection
+                        }
+                    >
+                        <Text
+                            style={
+                                styles.itineraryHeading
+                            }
+                        >
+                            Important Information
+                        </Text>
+
+                        {/* Inclusions */}
+
+                        {inclusions.length > 0 && (
+                            <View
                                 style={
-                                    styles.itineraryHeading
+                                    styles.termsBlock
                                 }
                             >
-                                Important Information
-                            </Text>
-
-                            {/* Inclusions */}
-
-                            {inclusions.length > 0 && (
-                                <View
-                                    style={styles.termsBlock}
+                                <Text
+                                    style={
+                                        styles.termsTitle
+                                    }
                                 >
-                                    <Text
-                                        style={
-                                            styles.termsTitle
-                                        }
-                                    >
-                                        Inclusions
-                                    </Text>
+                                    Inclusions
+                                </Text>
 
-                                    <BulletList
-                                        items={inclusions}
-                                    />
-                                </View>
-                            )}
+                                <BulletList
+                                    items={inclusions}
+                                />
+                            </View>
+                        )}
 
-                            {/* Exclusions */}
+                        {/* Exclusions */}
 
-                            {exclusions.length > 0 && (
-                                <View
-                                    style={styles.termsBlock}
+                        {exclusions.length > 0 && (
+                            <View
+                                style={
+                                    styles.termsBlock
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.termsTitle
+                                    }
                                 >
-                                    <Text
-                                        style={
-                                            styles.termsTitle
-                                        }
-                                    >
-                                        Exclusions
-                                    </Text>
+                                    Exclusions
+                                </Text>
 
-                                    <BulletList
-                                        items={exclusions}
-                                    />
-                                </View>
-                            )}
+                                <BulletList
+                                    items={exclusions}
+                                />
+                            </View>
+                        )}
 
-                            {/* Payment Policy */}
+                        {/* Payment Policy */}
 
-                            {data.paymentPolicy.length >
-                                0 && (
-                                    <View
-                                        style={styles.termsBlock}
-                                    >
-                                        <Text
-                                            style={
-                                                styles.termsTitle
-                                            }
-                                        >
-                                            Payment Policy
-                                        </Text>
+                        {data.paymentPolicy
+                            .length > 0 && (
+                            <View
+                                style={
+                                    styles.termsBlock
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.termsTitle
+                                    }
+                                >
+                                    Payment Policy
+                                </Text>
 
-                                        <BulletList
-                                            items={
-                                                data.paymentPolicy
-                                            }
-                                        />
-                                    </View>
-                                )}
+                                <BulletList
+                                    items={
+                                        data.paymentPolicy
+                                    }
+                                />
+                            </View>
+                        )}
 
-                            {/* Payment Details */}
+                        {/* Payment Details */}
 
-                            {(data.paymentDetails?.paymentMethods
-                                ?.length > 0 ||
-                                Object.values(
-                                    data.paymentDetails
-                                        ?.bankDetails ?? {}
-                                ).some(Boolean)) && (
-                                    <View
-                                        style={styles.termsBlock}
-                                    >
-                                        <Text
-                                            style={
-                                                styles.termsTitle
-                                            }
-                                        >
-                                            Payment Details
-                                        </Text>
+                        {(data.paymentDetails
+                            ?.paymentMethods
+                            ?.length > 0 ||
+                            Object.values(
+                                data.paymentDetails
+                                    ?.bankDetails ?? {}
+                            ).some(Boolean)) && (
+                            <View
+                                style={
+                                    styles.termsBlock
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.termsTitle
+                                    }
+                                >
+                                    Payment Details
+                                </Text>
 
+                                <View
+                                    style={
+                                        styles.paymentDetailsCard
+                                    }
+                                >
+                                    {data
+                                        .paymentDetails
+                                        .paymentMethods
+                                        ?.length > 0 && (
+                                        <>
+                                            <Text
+                                                style={
+                                                    styles.paymentMethodsLabel
+                                                }
+                                            >
+                                                Accepted Payment
+                                                Methods
+                                            </Text>
+
+                                            <Text
+                                                style={
+                                                    styles.paymentMethods
+                                                }
+                                            >
+                                                {data
+                                                    .paymentDetails
+                                                    .paymentMethods.join(
+                                                        "  ·  "
+                                                    )}
+                                            </Text>
+                                        </>
+                                    )}
+
+                                    {data
+                                        .paymentDetails
+                                        .bankDetails
+                                        ?.accountName && (
                                         <View
                                             style={
-                                                styles.paymentDetailsCard
+                                                styles.paymentRow
                                             }
                                         >
-                                            {data.paymentDetails
-                                                .paymentMethods
-                                                ?.length > 0 && (
-                                                    <>
-                                                        <Text
-                                                            style={
-                                                                styles.paymentMethodsLabel
-                                                            }
-                                                        >
-                                                            Accepted Payment Methods
-                                                        </Text>
+                                            <Text
+                                                style={
+                                                    styles.paymentLabel
+                                                }
+                                            >
+                                                Account Name
+                                            </Text>
 
-                                                        <Text
-                                                            style={
-                                                                styles.paymentMethods
-                                                            }
-                                                        >
-                                                            {data.paymentDetails.paymentMethods.join(
-                                                                "  ·  "
-                                                            )}
-                                                        </Text>
-                                                    </>
-                                                )}
-
-                                            {data.paymentDetails
-                                                .bankDetails
-                                                ?.accountName && (
-                                                    <View
-                                                        style={
-                                                            styles.paymentRow
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.paymentLabel
-                                                            }
-                                                        >
-                                                            Account Name
-                                                        </Text>
-
-                                                        <Text
-                                                            style={
-                                                                styles.paymentValue
-                                                            }
-                                                        >
-                                                            {
-                                                                data.paymentDetails
-                                                                    .bankDetails
-                                                                    .accountName
-                                                            }
-                                                        </Text>
-                                                    </View>
-                                                )}
-
-                                            {data.paymentDetails
-                                                .bankDetails
-                                                ?.accountNumber && (
-                                                    <View
-                                                        style={
-                                                            styles.paymentRow
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.paymentLabel
-                                                            }
-                                                        >
-                                                            Account Number
-                                                        </Text>
-
-                                                        <Text
-                                                            style={
-                                                                styles.paymentValue
-                                                            }
-                                                        >
-                                                            {
-                                                                data.paymentDetails
-                                                                    .bankDetails
-                                                                    .accountNumber
-                                                            }
-                                                        </Text>
-                                                    </View>
-                                                )}
-
-                                            {data.paymentDetails
-                                                .bankDetails
-                                                ?.bankName && (
-                                                    <View
-                                                        style={
-                                                            styles.paymentRow
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.paymentLabel
-                                                            }
-                                                        >
-                                                            Bank
-                                                        </Text>
-
-                                                        <Text
-                                                            style={
-                                                                styles.paymentValue
-                                                            }
-                                                        >
-                                                            {
-                                                                data.paymentDetails
-                                                                    .bankDetails
-                                                                    .bankName
-                                                            }
-                                                        </Text>
-                                                    </View>
-                                                )}
-
-                                            {data.paymentDetails
-                                                .bankDetails
-                                                ?.branch && (
-                                                    <View
-                                                        style={
-                                                            styles.paymentRow
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.paymentLabel
-                                                            }
-                                                        >
-                                                            Branch
-                                                        </Text>
-
-                                                        <Text
-                                                            style={
-                                                                styles.paymentValue
-                                                            }
-                                                        >
-                                                            {
-                                                                data.paymentDetails
-                                                                    .bankDetails
-                                                                    .branch
-                                                            }
-                                                        </Text>
-                                                    </View>
-                                                )}
-
-                                            {data.paymentDetails
-                                                .bankDetails
-                                                ?.ifsc && (
-                                                    <View
-                                                        style={
-                                                            styles.paymentRow
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.paymentLabel
-                                                            }
-                                                        >
-                                                            IFSC
-                                                        </Text>
-
-                                                        <Text
-                                                            style={
-                                                                styles.paymentValue
-                                                            }
-                                                        >
-                                                            {
-                                                                data.paymentDetails
-                                                                    .bankDetails
-                                                                    .ifsc
-                                                            }
-                                                        </Text>
-                                                    </View>
-                                                )}
-
-                                            {data.paymentDetails
-                                                .bankDetails
-                                                ?.upi && (
-                                                    <View
-                                                        style={
-                                                            styles.paymentRow
-                                                        }
-                                                    >
-                                                        <Text
-                                                            style={
-                                                                styles.paymentLabel
-                                                            }
-                                                        >
-                                                            UPI ID
-                                                        </Text>
-
-                                                        <Text
-                                                            style={
-                                                                styles.paymentUpi
-                                                            }
-                                                        >
-                                                            {
-                                                                data.paymentDetails
-                                                                    .bankDetails
-                                                                    .upi
-                                                            }
-                                                        </Text>
-                                                    </View>
-                                                )}
-
-                                            {paymentQrSource && (
-                                                <View
-                                                    style={styles.paymentQrContainer}
-                                                    wrap={false}
-                                                >
-                                                    <Image
-                                                        src={paymentQrSource}
-                                                        style={styles.paymentQr}
-                                                    />
-                                                </View>
-                                            )}
+                                            <Text
+                                                style={
+                                                    styles.paymentValue
+                                                }
+                                            >
+                                                {
+                                                    data
+                                                        .paymentDetails
+                                                        .bankDetails
+                                                        .accountName
+                                                }
+                                            </Text>
                                         </View>
-                                    </View>
-                                )}
+                                    )}
 
-                            {/* Cancellation Policy */}
-
-                            {data.cancellationPolicy
-                                .length > 0 && (
-                                    <View
-                                        style={styles.termsBlock}
-                                    >
-                                        <Text
+                                    {data
+                                        .paymentDetails
+                                        .bankDetails
+                                        ?.accountNumber && (
+                                        <View
                                             style={
-                                                styles.termsTitle
+                                                styles.paymentRow
                                             }
                                         >
-                                            Cancellation Policy
-                                        </Text>
+                                            <Text
+                                                style={
+                                                    styles.paymentLabel
+                                                }
+                                            >
+                                                Account Number
+                                            </Text>
 
-                                        <BulletList
-                                            items={
-                                                data.cancellationPolicy
+                                            <Text
+                                                style={
+                                                    styles.paymentValue
+                                                }
+                                            >
+                                                {
+                                                    data
+                                                        .paymentDetails
+                                                        .bankDetails
+                                                        .accountNumber
+                                                }
+                                            </Text>
+                                        </View>
+                                    )}
+
+                                    {data
+                                        .paymentDetails
+                                        .bankDetails
+                                        ?.bankName && (
+                                        <View
+                                            style={
+                                                styles.paymentRow
                                             }
-                                        />
-                                    </View>
-                                )}
+                                        >
+                                            <Text
+                                                style={
+                                                    styles.paymentLabel
+                                                }
+                                            >
+                                                Bank
+                                            </Text>
 
-                            {/* Terms */}
+                                            <Text
+                                                style={
+                                                    styles.paymentValue
+                                                }
+                                            >
+                                                {
+                                                    data
+                                                        .paymentDetails
+                                                        .bankDetails
+                                                        .bankName
+                                                }
+                                            </Text>
+                                        </View>
+                                    )}
 
-                            {terms.length > 0 && (
-                                <View
-                                    style={styles.termsBlock}
-                                >
-                                    <Text
-                                        style={
-                                            styles.termsTitle
-                                        }
-                                    >
-                                        Terms & Conditions
-                                    </Text>
+                                    {data
+                                        .paymentDetails
+                                        .bankDetails
+                                        ?.branch && (
+                                        <View
+                                            style={
+                                                styles.paymentRow
+                                            }
+                                        >
+                                            <Text
+                                                style={
+                                                    styles.paymentLabel
+                                                }
+                                            >
+                                                Branch
+                                            </Text>
 
-                                    <BulletList
-                                        items={terms}
-                                    />
+                                            <Text
+                                                style={
+                                                    styles.paymentValue
+                                                }
+                                            >
+                                                {
+                                                    data
+                                                        .paymentDetails
+                                                        .bankDetails
+                                                        .branch
+                                                }
+                                            </Text>
+                                        </View>
+                                    )}
+
+                                    {data
+                                        .paymentDetails
+                                        .bankDetails
+                                        ?.ifsc && (
+                                        <View
+                                            style={
+                                                styles.paymentRow
+                                            }
+                                        >
+                                            <Text
+                                                style={
+                                                    styles.paymentLabel
+                                                }
+                                            >
+                                                IFSC
+                                            </Text>
+
+                                            <Text
+                                                style={
+                                                    styles.paymentValue
+                                                }
+                                            >
+                                                {
+                                                    data
+                                                        .paymentDetails
+                                                        .bankDetails
+                                                        .ifsc
+                                                }
+                                            </Text>
+                                        </View>
+                                    )}
+
+                                    {data
+                                        .paymentDetails
+                                        .bankDetails
+                                        ?.upi && (
+                                        <View
+                                            style={
+                                                styles.paymentRow
+                                            }
+                                        >
+                                            <Text
+                                                style={
+                                                    styles.paymentLabel
+                                                }
+                                            >
+                                                UPI ID
+                                            </Text>
+
+                                            <Text
+                                                style={
+                                                    styles.paymentUpi
+                                                }
+                                            >
+                                                {
+                                                    data
+                                                        .paymentDetails
+                                                        .bankDetails
+                                                        .upi
+                                                }
+                                            </Text>
+                                        </View>
+                                    )}
+
+                                    {paymentQrSource && (
+                                        <View
+                                            style={
+                                                styles.paymentQrContainer
+                                            }
+                                            wrap={false}
+                                        >
+                                            <Image
+                                                src={
+                                                    paymentQrSource
+                                                }
+                                                style={
+                                                    styles.paymentQr
+                                                }
+                                            />
+                                        </View>
+                                    )}
                                 </View>
-                            )}
-                        </View>
-                    )}
+                            </View>
+                        )}
+
+                        {/* Cancellation Policy */}
+
+                        {data
+                            .cancellationPolicy
+                            .length > 0 && (
+                            <View
+                                style={
+                                    styles.termsBlock
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.termsTitle
+                                    }
+                                >
+                                    Cancellation Policy
+                                </Text>
+
+                                <BulletList
+                                    items={
+                                        data.cancellationPolicy
+                                    }
+                                />
+                            </View>
+                        )}
+
+                        {/* Terms */}
+
+                        {terms.length > 0 && (
+                            <View
+                                style={
+                                    styles.termsBlock
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.termsTitle
+                                    }
+                                >
+                                    Terms & Conditions
+                                </Text>
+
+                                <BulletList
+                                    items={terms}
+                                />
+                            </View>
+                        )}
+                    </View>
+                )}
 
                 {/* ========================================================
                     FOOTER

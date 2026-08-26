@@ -19,7 +19,7 @@ import { vehicles } from "@/lib/data/vehicles";
 | - Resolve region
 | - Resolve service
 | - Resolve selected vehicles
-| - Resolve selected package
+| - Resolve package options
 | - Combine service + region inclusions/exclusions
 | - Attach region-specific payment/cancellation policies
 | - Attach firm-specific payment details
@@ -82,14 +82,9 @@ export function buildItineraryExportData(itinerary: Itinerary) {
 
             return {
                 vehicleId: vehicle.id,
-
                 name: vehicle.name,
-
-                seatingCapacity:
-                    vehicle.seatingCapacity,
-
+                seatingCapacity: vehicle.seatingCapacity,
                 carrier: vehicle.carrier,
-
                 price: option.price,
             };
         })
@@ -102,14 +97,47 @@ export function buildItineraryExportData(itinerary: Itinerary) {
 
     /*
     |--------------------------------------------------------------------------
-    | Resolve Package
+    | Resolve Package Options
     |--------------------------------------------------------------------------
+    |
+    | db.ts stores packages as:
+    |
+    | packageOptions?: {
+    |     packageId: string;
+    |     price: string;
+    | }[];
+    |
+    | Therefore we resolve every stored package ID against the selected
+    | service's packageOptions.
+    |
     */
 
-    const packageOption =
-        service?.packageOptions?.find(
-            (option) =>
-                option.id === itinerary.packageId
+    const quotationPackages = (
+        itinerary.packageOptions ?? []
+    )
+        .map((option) => {
+            const packageDefinition =
+                service?.packageOptions?.find(
+                    (item) =>
+                        item.id === option.packageId
+                );
+
+            if (!packageDefinition) {
+                return null;
+            }
+
+            return {
+                packageId: packageDefinition.id,
+                name: packageDefinition.name,
+                price: option.price,
+            };
+        })
+        .filter(
+            (
+                packageOption
+            ): packageOption is NonNullable<
+                typeof packageOption
+            > => packageOption !== null
         );
 
     /*
@@ -153,11 +181,6 @@ export function buildItineraryExportData(itinerary: Itinerary) {
     |--------------------------------------------------------------------------
     | Firm Payment Details
     |--------------------------------------------------------------------------
-    |
-    | Payment information belongs to the selected firm.
-    |
-    | This is intentionally separate from paymentPolicy.
-    |
     */
 
     const paymentDetails = {
@@ -249,19 +272,8 @@ export function buildItineraryExportData(itinerary: Itinerary) {
             vehicles:
                 quotationVehicles,
 
-            package:
-                packageOption
-                    ? {
-                        id:
-                            packageOption.id,
-
-                        name:
-                            packageOption.name,
-
-                        price:
-                            itinerary.packagePrice,
-                    }
-                    : undefined,
+            packages:
+                quotationPackages,
         },
 
         /*
@@ -291,12 +303,6 @@ export function buildItineraryExportData(itinerary: Itinerary) {
         |--------------------------------------------------------------------------
         | Payment Details
         |--------------------------------------------------------------------------
-        |
-        | Firm-specific payment information.
-        |
-        | This should be rendered immediately after Payment Policy
-        | in the PDF.
-        |
         */
 
         paymentDetails,

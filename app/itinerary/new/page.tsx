@@ -110,8 +110,9 @@ export default function NewItineraryPage() {
 
     const [pax, setPax] = useState(2);
 
-    const [firmId, setFirmId] = useState(firms[0]?.id ?? "");
-    const [regionId, setRegionId] = useState(regions[0]?.id ?? "");
+    const [regionId, setRegionId] = useState(
+        regions[0]?.id ?? ""
+    );
     const [serviceId, setServiceId] = useState(
         services[0]?.id ?? ""
     );
@@ -120,8 +121,10 @@ export default function NewItineraryPage() {
     const [vehicleOptions, setVehicleOptions] =
         useState<VehicleOption[]>([]);
 
-    const [packageId, setPackageId] = useState("");
-    const [packagePrice, setPackagePrice] = useState("");
+    const [packageOptions, setPackageOptions] = useState<
+        { packageId: string; price: string }[]
+    >([]);
+
     const [packageEnabled, setPackageEnabled] = useState(false);
 
     const [hotelEnabled, setHotelEnabled] = useState(false);
@@ -129,35 +132,40 @@ export default function NewItineraryPage() {
 
     const [saving, setSaving] = useState(false);
 
+    const defaultFirm = firms.find(
+        (firm) => firm.name === "Uranote Holidays"
+    );
+
+    const [firmId, setFirmId] = useState(
+        defaultFirm?.id ?? ""
+    );
+
     const [firmSearch, setFirmSearch] = useState(
-        firms.find((firm) => firm.id === firmId)?.name ?? ""
+        defaultFirm?.name ?? ""
     );
 
-    const [showFirmResults, setShowFirmResults] = useState(false);
+    const [showFirmResults, setShowFirmResults] =
+        useState(false);
 
-    const filteredFirms = firms.filter((firm) =>
-        firm.name
-            .toLowerCase()
-            .includes(firmSearch.trim().toLowerCase())
-    );
+    const filteredFirms = useMemo(() => {
+        const term = firmSearch.trim().toLowerCase();
 
-    /*
-     * Rich text editor.
-     *
-     * This is ONLY for itinerary content.
-     * Trip Details above remain standard form fields.
-     */
+        if (term === "") return [];
+
+        return firms.filter((firm) =>
+            firm.name.toLowerCase().startsWith(term)
+        );
+    }, [firmSearch]);
+
     const editor = useEditor({
         extensions: [
             StarterKit,
             Placeholder.configure({
-                placeholder: "Start writing your itinerary...",
+                placeholder:
+                    "Start writing your itinerary...",
             }),
         ],
         content: `
-            <h2>Day 1: Chandigarh – Shimla</h2>
-            <p>Pickup from Chandigarh and proceed towards Shimla.</p>
-            <p><strong>Overnight:</strong> Shimla</p>
         `,
         immediatelyRender: false,
     });
@@ -175,12 +183,19 @@ export default function NewItineraryPage() {
                 startDate,
                 endDate
             ),
-        [customerName, destination, startDate, endDate]
+        [
+            customerName,
+            destination,
+            startDate,
+            endDate,
+        ]
     );
 
     const selectedService = services.find(
         (service) => service.id === serviceId
     );
+
+    /* ---------------- Vehicle ---------------- */
 
     const addVehicle = () => {
         setVehicleOptions((current) => [
@@ -221,10 +236,69 @@ export default function NewItineraryPage() {
     const removeVehicle = (index: number) => {
         setVehicleOptions((current) =>
             current.filter(
-                (_, vehicleIndex) => vehicleIndex !== index
+                (_, vehicleIndex) =>
+                    vehicleIndex !== index
             )
         );
     };
+
+    /* ---------------- Package Pricing ---------------- */
+
+    const addPackageOption = () => {
+        setPackageOptions((current) => [
+            ...current,
+            {
+                packageId: "",
+                price: "",
+            },
+        ]);
+    };
+
+    const updatePackageOption = (
+        index: number,
+        field: "packageId" | "price",
+        value: string
+    ) => {
+        setPackageOptions((current) =>
+            current.map((option, optionIndex) =>
+                optionIndex === index
+                    ? {
+                        ...option,
+                        [field]: value,
+                    }
+                    : option
+            )
+        );
+    };
+
+    const removePackageOption = (index: number) => {
+        setPackageOptions((current) =>
+            current.filter(
+                (_, optionIndex) =>
+                    optionIndex !== index
+            )
+        );
+    };
+
+    const enablePackagePricing = () => {
+        setPackageEnabled(true);
+
+        if (packageOptions.length === 0) {
+            setPackageOptions([
+                {
+                    packageId: "",
+                    price: "",
+                },
+            ]);
+        }
+    };
+
+    const removePackagePricing = () => {
+        setPackageEnabled(false);
+        setPackageOptions([]);
+    };
+
+    /* ---------------- Hotels ---------------- */
 
     const addHotel = () => {
         setHotels((current) => [
@@ -260,10 +334,13 @@ export default function NewItineraryPage() {
     const removeHotel = (index: number) => {
         setHotels((current) =>
             current.filter(
-                (_, hotelIndex) => hotelIndex !== index
+                (_, hotelIndex) =>
+                    hotelIndex !== index
             )
         );
     };
+
+    /* ---------------- Save ---------------- */
 
     const handleSave = async () => {
         const missingFields: string[] = [];
@@ -306,12 +383,16 @@ export default function NewItineraryPage() {
         }
 
         if (endDate < startDate) {
-            alert("End date cannot be before start date.");
+            alert(
+                "End date cannot be before start date."
+            );
             return;
         }
 
         if (!editor) {
-            alert("Itinerary editor is not ready yet.");
+            alert(
+                "Itinerary editor is not ready yet."
+            );
             return;
         }
 
@@ -340,25 +421,17 @@ export default function NewItineraryPage() {
 
                 vehicleOptions: vehicleEnabled
                     ? vehicleOptions.filter(
-                        (vehicle) => vehicle.vehicleId
+                        (vehicle) =>
+                            vehicle.vehicleId
                     )
                     : [],
 
-                packageId:
-                    selectedService?.pricingModel ===
-                        "package" &&
-                        packageEnabled &&
-                        packageId
-                        ? packageId
-                        : undefined,
-
-                packagePrice:
-                    selectedService?.pricingModel ===
-                        "package" &&
-                        packageEnabled &&
-                        packagePrice
-                        ? Number(packagePrice)
-                        : undefined,
+                packageOptions: packageEnabled
+                    ? packageOptions.filter(
+                        (option) =>
+                            option.packageId
+                    )
+                    : [],
 
                 hotelEnabled,
 
@@ -407,7 +480,6 @@ export default function NewItineraryPage() {
             {/* Header */}
             <header className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-
                     <div className="min-w-0 lg:flex-1">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px]">
                             Itinerary Workspace
@@ -419,13 +491,14 @@ export default function NewItineraryPage() {
                     </div>
 
                     <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
-
                         <button
                             type="button"
-                            onClick={() => router.push("/")}
+                            onClick={() =>
+                                router.push("/")
+                            }
                             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
                         >
-                           ← Dashboard
+                            ← Dashboard
                         </button>
 
                         <button
@@ -434,9 +507,10 @@ export default function NewItineraryPage() {
                             disabled={saving}
                             className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
                         >
-                            {saving ? "Saving..." : "Save Itinerary"}
+                            {saving
+                                ? "Saving..."
+                                : "Save Itinerary"}
                         </button>
-
                     </div>
                 </div>
             </header>
@@ -450,7 +524,8 @@ export default function NewItineraryPage() {
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
-                            Customer, destination and trip configuration
+                            Customer, destination and trip
+                            configuration
                         </p>
                     </div>
 
@@ -473,10 +548,10 @@ export default function NewItineraryPage() {
                             />
                         </div>
 
-                        {/* Destination */}
+                        {/* Tour Name */}
                         <div>
                             <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                Destination *
+                                Tour Name *
                             </label>
 
                             <input
@@ -551,17 +626,34 @@ export default function NewItineraryPage() {
                             <input
                                 type="number"
                                 min={1}
-                                value={pax}
-                                onChange={(e) =>
-                                    setPax(
-                                        Math.max(
-                                            1,
-                                            Number(
-                                                e.target.value
-                                            )
-                                        )
-                                    )
+                                value={
+                                    pax < 1 ? "" : pax
                                 }
+                                onChange={(e) => {
+                                    const val =
+                                        e.target.value;
+
+                                    if (val === "") {
+                                        setPax(0);
+                                    } else {
+                                        setPax(
+                                            Number(val)
+                                        );
+                                    }
+                                }}
+                                onBlur={(e) => {
+                                    const val =
+                                        Number(
+                                            e.target.value
+                                        );
+
+                                    if (
+                                        val < 1 ||
+                                        isNaN(val)
+                                    ) {
+                                        setPax(1);
+                                    }
+                                }}
                                 className={inputClass}
                             />
                         </div>
@@ -575,26 +667,33 @@ export default function NewItineraryPage() {
                             <input
                                 value={firmSearch}
                                 onChange={(e) => {
-                                    const value = e.target.value;
+                                    const value =
+                                        e.target.value;
 
-                                    setFirmSearch(value);
-                                    setShowFirmResults(true);
-
-                                    // Clear selected firm if the user changes the search
-                                    // without selecting another firm.
-                                    const exactMatch = firms.find(
-                                        (firm) =>
-                                            firm.name.toLowerCase() ===
-                                            value.trim().toLowerCase()
+                                    setFirmSearch(
+                                        value
                                     );
+                                    setFirmId("");
 
-                                    setFirmId(exactMatch?.id ?? "");
+                                    setShowFirmResults(
+                                        value.trim()
+                                            .length > 0
+                                    );
                                 }}
-                                onFocus={() => setShowFirmResults(true)}
+                                onFocus={() => {
+                                    if (
+                                        firmSearch.trim()
+                                    ) {
+                                        setShowFirmResults(
+                                            true
+                                        );
+                                    }
+                                }}
                                 onBlur={() => {
-                                    // Small delay so clicking a result still works.
                                     setTimeout(() => {
-                                        setShowFirmResults(false);
+                                        setShowFirmResults(
+                                            false
+                                        );
                                     }, 150);
                                 }}
                                 placeholder="Search firm..."
@@ -602,32 +701,51 @@ export default function NewItineraryPage() {
                                 autoComplete="off"
                             />
 
-                            {showFirmResults && (
-                                <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
-                                    {filteredFirms.length > 0 ? (
-                                        filteredFirms.map((firm) => (
-                                            <button
-                                                key={firm.id}
-                                                type="button"
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
+                            {showFirmResults &&
+                                firmSearch.trim() && (
+                                    <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                                        {filteredFirms.length >
+                                            0 ? (
+                                            filteredFirms.map(
+                                                (
+                                                    firm
+                                                ) => (
+                                                    <button
+                                                        key={
+                                                            firm.id
+                                                        }
+                                                        type="button"
+                                                        onMouseDown={(
+                                                            e
+                                                        ) => {
+                                                            e.preventDefault();
 
-                                                    setFirmId(firm.id);
-                                                    setFirmSearch(firm.name);
-                                                    setShowFirmResults(false);
-                                                }}
-                                                className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                                            >
-                                                {firm.name}
-                                            </button>
-                                        ))
-                                    ) : (
-                                        <p className="px-3 py-2.5 text-sm text-slate-500">
-                                            No matching firm found.
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                                                            setFirmId(
+                                                                firm.id
+                                                            );
+                                                            setFirmSearch(
+                                                                firm.name
+                                                            );
+                                                            setShowFirmResults(
+                                                                false
+                                                            );
+                                                        }}
+                                                        className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                                    >
+                                                        {
+                                                            firm.name
+                                                        }
+                                                    </button>
+                                                )
+                                            )
+                                        ) : (
+                                            <p className="px-3 py-2.5 text-sm text-slate-500">
+                                                No matching
+                                                firm found.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                         </div>
 
                         {/* Region */}
@@ -645,14 +763,22 @@ export default function NewItineraryPage() {
                                 }
                                 className={selectClass}
                             >
-                                {regions.map((region) => (
-                                    <option
-                                        key={region.id}
-                                        value={region.id}
-                                    >
-                                        {region.name}
-                                    </option>
-                                ))}
+                                {regions.map(
+                                    (region) => (
+                                        <option
+                                            key={
+                                                region.id
+                                            }
+                                            value={
+                                                region.id
+                                            }
+                                        >
+                                            {
+                                                region.name
+                                            }
+                                        </option>
+                                    )
+                                )}
                             </select>
                         </div>
 
@@ -668,21 +794,34 @@ export default function NewItineraryPage() {
                                     setServiceId(
                                         e.target.value
                                     );
-                                    setVehicleOptions([]);
-                                    setPackageId("");
-                                    setPackagePrice("");
-                                    setPackageEnabled(false);
+                                    setVehicleOptions(
+                                        []
+                                    );
+                                    setPackageOptions(
+                                        []
+                                    );
+                                    setPackageEnabled(
+                                        false
+                                    );
                                 }}
                                 className={selectClass}
                             >
-                                {services.map((service) => (
-                                    <option
-                                        key={service.id}
-                                        value={service.id}
-                                    >
-                                        {service.name}
-                                    </option>
-                                ))}
+                                {services.map(
+                                    (service) => (
+                                        <option
+                                            key={
+                                                service.id
+                                            }
+                                            value={
+                                                service.id
+                                            }
+                                        >
+                                            {
+                                                service.name
+                                            }
+                                        </option>
+                                    )
+                                )}
                             </select>
                         </div>
                     </div>
@@ -697,7 +836,8 @@ export default function NewItineraryPage() {
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Add vehicle options and quoted prices.
+                                Add vehicle options and
+                                quoted prices.
                             </p>
                         </div>
 
@@ -707,7 +847,8 @@ export default function NewItineraryPage() {
                                 checked={vehicleEnabled}
                                 onChange={(e) =>
                                     setVehicleEnabled(
-                                        e.target.checked
+                                        e.target
+                                            .checked
                                     )
                                 }
                                 className="h-4 w-4 rounded border-slate-300"
@@ -720,37 +861,50 @@ export default function NewItineraryPage() {
                     {vehicleEnabled && (
                         <div className="space-y-3">
                             {vehicleOptions.map(
-                                (option, index) => (
+                                (
+                                    option,
+                                    index
+                                ) => (
                                     <div
                                         key={index}
                                         className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
                                     >
                                         <div>
-                                            {index === 0 && (
-                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                    Vehicle
-                                                </label>
-                                            )}
+                                            {index ===
+                                                0 && (
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                        Vehicle
+                                                    </label>
+                                                )}
 
                                             <select
                                                 value={
                                                     option.vehicleId
                                                 }
-                                                onChange={(e) =>
+                                                onChange={(
+                                                    e
+                                                ) =>
                                                     updateVehicle(
                                                         index,
                                                         "vehicleId",
-                                                        e.target.value
+                                                        e
+                                                            .target
+                                                            .value
                                                     )
                                                 }
-                                                className={selectClass}
+                                                className={
+                                                    selectClass
+                                                }
                                             >
                                                 <option value="">
-                                                    Select vehicle
+                                                    Select
+                                                    vehicle
                                                 </option>
 
                                                 {vehicles.map(
-                                                    (vehicle) => (
+                                                    (
+                                                        vehicle
+                                                    ) => (
                                                         <option
                                                             key={
                                                                 vehicle.id
@@ -777,11 +931,12 @@ export default function NewItineraryPage() {
                                         </div>
 
                                         <div>
-                                            {index === 0 && (
-                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                    Price
-                                                </label>
-                                            )}
+                                            {index ===
+                                                0 && (
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                        Price
+                                                    </label>
+                                                )}
 
                                             <input
                                                 type="number"
@@ -790,15 +945,21 @@ export default function NewItineraryPage() {
                                                     option.price ||
                                                     ""
                                                 }
-                                                onChange={(e) =>
+                                                onChange={(
+                                                    e
+                                                ) =>
                                                     updateVehicle(
                                                         index,
                                                         "price",
-                                                        e.target.value
+                                                        e
+                                                            .target
+                                                            .value
                                                     )
                                                 }
                                                 placeholder="₹ Quoted price"
-                                                className={inputClass}
+                                                className={
+                                                    inputClass
+                                                }
                                             />
                                         </div>
 
@@ -831,10 +992,9 @@ export default function NewItineraryPage() {
                 </section>
 
                 {/* Package Pricing */}
-                {selectedService?.pricingModel ===
-                    "package" &&
-                    !packageEnabled && (
-                        <section className={sectionClass}>
+                {selectedService?.pricingModel === "package" && (
+                    <section className={sectionClass}>
+                        {packageOptions.length === 0 ? (
                             <div className="flex items-center justify-between gap-4">
                                 <div>
                                     <h2 className="text-lg font-bold tracking-tight text-slate-900">
@@ -848,102 +1008,140 @@ export default function NewItineraryPage() {
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setPackageEnabled(true)
-                                    }
+                                    onClick={addPackageOption}
                                     className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                                 >
                                     + Add Package Pricing
                                 </button>
                             </div>
-                        </section>
-                    )}
+                        ) : (
+                            <>
+                                <div className="mb-5 flex items-center justify-between gap-4">
+                                    <div>
+                                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                                            Package Pricing
+                                        </h2>
 
-                {selectedService?.pricingModel ===
-                    "package" &&
-                    packageEnabled && (
-                        <section className={sectionClass}>
-                            <div className="mb-5 flex items-center justify-between gap-4">
-                                <div>
-                                    <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                                        Package Pricing
-                                    </h2>
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            Add package options and quoted prices.
+                                        </p>
+                                    </div>
 
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        Package and quoted price.
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setPackageEnabled(false);
-                                        setPackageId("");
-                                        setPackagePrice("");
-                                    }}
-                                    className="text-sm font-medium text-red-600 hover:underline"
-                                >
-                                    Remove package pricing
-                                </button>
-                            </div>
-
-                            <div className="grid gap-5 md:grid-cols-2">
-                                <div>
-                                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                        Package
-                                    </label>
-
-                                    <select
-                                        value={packageId}
-                                        onChange={(e) =>
-                                            setPackageId(
-                                                e.target.value
-                                            )
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setPackageOptions([])
                                         }
-                                        className={selectClass}
+                                        className="text-sm font-medium text-red-600 hover:underline"
                                     >
-                                        <option value="">
-                                            Select package
-                                        </option>
-
-                                        {selectedService.packageOptions?.map(
-                                            (option) => (
-                                                <option
-                                                    key={
-                                                        option.id
-                                                    }
-                                                    value={
-                                                        option.id
-                                                    }
-                                                >
-                                                    {option.name}
-                                                </option>
-                                            )
-                                        )}
-                                    </select>
+                                        Remove package pricing
+                                    </button>
                                 </div>
 
-                                <div>
-                                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                        Package Price
-                                    </label>
+                                <div className="space-y-3">
+                                    {packageOptions.map(
+                                        (option, index) => (
+                                            <div
+                                                key={index}
+                                                className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
+                                            >
+                                                <div>
+                                                    {index === 0 && (
+                                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                            Package
+                                                        </label>
+                                                    )}
 
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        value={packagePrice}
-                                        onChange={(e) =>
-                                            setPackagePrice(
-                                                e.target.value
-                                            )
-                                        }
-                                        placeholder="₹ Package price"
-                                        className={inputClass}
-                                    />
+                                                    <select
+                                                        value={
+                                                            option.packageId
+                                                        }
+                                                        onChange={(e) =>
+                                                            updatePackageOption(
+                                                                index,
+                                                                "packageId",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        className={selectClass}
+                                                    >
+                                                        <option value="">
+                                                            Select package
+                                                        </option>
+
+                                                        {selectedService.packageOptions?.map(
+                                                            (packageOption) => (
+                                                                <option
+                                                                    key={
+                                                                        packageOption.id
+                                                                    }
+                                                                    value={
+                                                                        packageOption.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        packageOption.name
+                                                                    }
+                                                                </option>
+                                                            )
+                                                        )}
+                                                    </select>
+                                                </div>
+
+                                                <div>
+                                                    {index === 0 && (
+                                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                            Price
+                                                        </label>
+                                                    )}
+
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        value={
+                                                            option.price
+                                                        }
+                                                        onChange={(e) =>
+                                                            updatePackageOption(
+                                                                index,
+                                                                "price",
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        placeholder="₹ Package price"
+                                                        className={inputClass}
+                                                    />
+                                                </div>
+
+                                                <div className="flex items-end">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            removePackageOption(
+                                                                index
+                                                            )
+                                                        }
+                                                        className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={addPackageOption}
+                                        className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                    >
+                                        + Add Another Package
+                                    </button>
                                 </div>
-                            </div>
-                        </section>
-                    )}
+                            </>
+                        )}
+                    </section>
+                )}
 
                 {/* Hotels */}
                 <section className={sectionClass}>
@@ -954,7 +1152,8 @@ export default function NewItineraryPage() {
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Add hotel stays and meal plans.
+                                Add hotel stays and meal
+                                plans.
                             </p>
                         </div>
 
@@ -964,7 +1163,8 @@ export default function NewItineraryPage() {
                                 checked={hotelEnabled}
                                 onChange={(e) =>
                                     setHotelEnabled(
-                                        e.target.checked
+                                        e.target
+                                            .checked
                                     )
                                 }
                                 className="h-4 w-4 rounded border-slate-300"
@@ -976,149 +1176,201 @@ export default function NewItineraryPage() {
 
                     {hotelEnabled && (
                         <div className="space-y-4">
-                            {hotels.map((hotel, index) => (
-                                <div
-                                    key={index}
-                                    className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm"
-                                >
-                                    <div className="mb-4 flex items-center justify-between">
-                                        <p className="text-sm font-bold text-slate-800">
-                                            Hotel {index + 1}
-                                        </p>
+                            {hotels.map(
+                                (
+                                    hotel,
+                                    index
+                                ) => (
+                                    <div
+                                        key={index}
+                                        className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm"
+                                    >
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <p className="text-sm font-bold text-slate-800">
+                                                Hotel{" "}
+                                                {index +
+                                                    1}
+                                            </p>
 
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                removeHotel(
-                                                    index
-                                                )
-                                            }
-                                            className="text-xs font-medium text-red-600 hover:underline"
-                                        >
-                                            Remove
-                                        </button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeHotel(
+                                                        index
+                                                    )
+                                                }
+                                                className="text-xs font-medium text-red-600 hover:underline"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+
+                                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                            <input
+                                                value={
+                                                    hotel.destination ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "destination",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                placeholder="Destination"
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                value={
+                                                    hotel.name ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "name",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                placeholder="Hotel name"
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                type="date"
+                                                value={
+                                                    hotel.checkIn ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "checkIn",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                type="date"
+                                                value={
+                                                    hotel.checkOut ??
+                                                    ""
+                                                }
+                                                min={
+                                                    hotel.checkIn
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "checkOut",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <input
+                                                value={
+                                                    hotel.roomType ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "roomType",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                placeholder="Room type"
+                                                className={
+                                                    inputClass
+                                                }
+                                            />
+
+                                            <select
+                                                value={
+                                                    hotel.mealPlan ??
+                                                    ""
+                                                }
+                                                onChange={(
+                                                    e
+                                                ) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "mealPlan",
+                                                        e
+                                                            .target
+                                                            .value
+                                                    )
+                                                }
+                                                className={
+                                                    selectClass
+                                                }
+                                            >
+                                                <option value="">
+                                                    Select meal
+                                                    plan
+                                                </option>
+
+                                                <option value="EP">
+                                                    EP – Room
+                                                    Only
+                                                </option>
+
+                                                <option value="CP">
+                                                    CP –
+                                                    Breakfast
+                                                </option>
+
+                                                <option value="MAP">
+                                                    MAP –
+                                                    Breakfast +
+                                                    Dinner
+                                                </option>
+
+                                                <option value="AP">
+                                                    AP –
+                                                    Breakfast +
+                                                    Lunch +
+                                                    Dinner
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
-
-                                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                        <input
-                                            value={
-                                                hotel.destination ??
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "destination",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Destination"
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            value={
-                                                hotel.name ?? ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "name",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Hotel name"
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            type="date"
-                                            value={
-                                                hotel.checkIn ??
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "checkIn",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            type="date"
-                                            value={
-                                                hotel.checkOut ??
-                                                ""
-                                            }
-                                            min={
-                                                hotel.checkIn
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "checkOut",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className={inputClass}
-                                        />
-
-                                        <input
-                                            value={
-                                                hotel.roomType ??
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "roomType",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Room type"
-                                            className={inputClass}
-                                        />
-
-                                        <select
-                                            value={
-                                                hotel.mealPlan ??
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                updateHotel(
-                                                    index,
-                                                    "mealPlan",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className={selectClass}
-                                        >
-                                            <option value="">
-                                                Select meal plan
-                                            </option>
-
-                                            <option value="EP">
-                                                EP – Room Only
-                                            </option>
-
-                                            <option value="CP">
-                                                CP – Breakfast
-                                            </option>
-
-                                            <option value="MAP">
-                                                MAP – Breakfast + Dinner
-                                            </option>
-
-                                            <option value="AP">
-                                                AP – Breakfast + Lunch + Dinner
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            )}
 
                             <button
                                 type="button"
@@ -1133,7 +1385,7 @@ export default function NewItineraryPage() {
 
                 {/* Itinerary Content */}
                 <section className="rounded-2xl border border-slate-200 bg-white shadow-md">
-                    <div className="sticky top-0 z-20 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
+                    <div className="sticky top-0 z-50 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
                         <div className="flex flex-wrap items-center gap-1">
                             <ToolbarButton
                                 onClick={() =>
@@ -1245,11 +1497,14 @@ export default function NewItineraryPage() {
 
                     <div className="min-h-[700px] bg-slate-100/70 p-6 md:p-10">
                         <div className="mx-auto min-h-[620px] max-w-4xl rounded-xl bg-white px-8 py-10 shadow-sm ring-1 ring-slate-200 md:px-12 md:py-12">
-                            <EditorContent editor={editor} />
+                            <EditorContent
+                                editor={editor}
+                            />
                         </div>
                     </div>
                 </section>
             </div>
+
             <button
                 type="button"
                 onClick={() =>

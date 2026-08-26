@@ -188,16 +188,6 @@ export default function HomePage() {
                                     {itineraries.length}
                                 </p>
                             </div>
-
-                            <div className="rounded-2xl border border-gray-200 bg-white px-5 py-3 shadow-sm">
-                                <p className="text-[11px] font-medium uppercase tracking-wide text-gray-400">
-                                    Showing
-                                </p>
-
-                                <p className="mt-0.5 text-xl font-semibold tracking-tight text-gray-950">
-                                    {filteredItineraries.length}
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </section>

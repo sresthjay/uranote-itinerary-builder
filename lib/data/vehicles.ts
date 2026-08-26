@@ -7,6 +7,13 @@ export interface Vehicle {
 
 export const vehicles: Vehicle[] = [
     {
+        id: "alto",
+        name: "Suzuki Alto",
+        carrier: true,
+        seatingCapacity: 4,
+    },
+
+    {
         id: "dzire",
         name: "Swift Dzire",
         carrier: true,
@@ -14,10 +21,31 @@ export const vehicles: Vehicle[] = [
     },
 
     {
+        id: "etios",
+        name: "Toyota Etios",
+        carrier: false,
+        seatingCapacity: 4,
+    },
+
+    {
+        id: "ertiga",
+        name: "Suzuki Ertiga",
+        carrier: true,
+        seatingCapacity: 6,
+    },
+   
+    {
         id: "innova",
         name: "Toyota Innova",
         carrier: true,
         seatingCapacity: 6,
+    },
+
+    {
+        id: "carens",
+        name: "Kia Carens",
+        carrier: true,
+        seatingCapacity: 7,
     },
 
     {
@@ -35,6 +63,13 @@ export const vehicles: Vehicle[] = [
     },
 
     {
+        id: "scorpio",
+        name: "Mahindra Scorpio",
+        carrier: true,
+        seatingCapacity: 8,
+    },
+
+    {
         id: "tempo-traveller-12",
         name: "Tempo Traveller 12+1",
         carrier: true,
@@ -44,6 +79,27 @@ export const vehicles: Vehicle[] = [
     {
         id: "tempo-traveller-16",
         name: "Tempo Traveller 16+1",
+        carrier: true,
+        seatingCapacity: 16,
+    },
+
+    {
+        id: "tempo-traveller-20",
+        name: "Tempo Traveller 20+1",
+        carrier: true,
+        seatingCapacity: 20,
+    },
+
+    {
+        id: "urbania-12",
+        name: "Urbania 12+1",
+        carrier: true,
+        seatingCapacity: 12,
+    },
+
+    {
+        id: "urbania-16",
+        name: "Urbania 16+1",
         carrier: true,
         seatingCapacity: 16,
     },
