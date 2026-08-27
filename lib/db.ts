@@ -8,6 +8,7 @@ export interface Hotel {
   checkIn: string;
   checkOut: string;
   roomType?: string;
+  rooms: number;
   mealPlan?: string;
 }
 

@@ -1537,16 +1537,16 @@ export function CustomerItineraryPDF({
                                         )}
                                     </Text>
 
-                                    {hotel.roomType && (
-                                        <Text
-                                            style={
-                                                styles.hotelDetail
-                                            }
-                                        >
+                                    {(hotel.roomType || hotel.rooms) && (
+                                        <Text style={styles.hotelDetail}>
                                             Room:{" "}
-                                            {
-                                                hotel.roomType
-                                            }
+                                            {hotel.roomType || "Room"}
+                                            {hotel.rooms
+                                                ? ` · ${hotel.rooms} ${hotel.rooms === 1
+                                                    ? "Room"
+                                                    : "Rooms"
+                                                }`
+                                                : ""}
                                         </Text>
                                     )}
 

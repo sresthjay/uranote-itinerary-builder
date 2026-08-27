@@ -57,7 +57,7 @@ function calculateDuration(startDate: string, endDate: string) {
 
     const nights = Math.round(
         (end.getTime() - start.getTime()) /
-            (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24)
     );
 
     if (nights < 0) return "";
@@ -289,6 +289,7 @@ function EditItineraryContent() {
                 checkIn: "",
                 checkOut: "",
                 roomType: "",
+                rooms: 1,
                 mealPlan: "",
             },
         ]);
@@ -297,15 +298,15 @@ function EditItineraryContent() {
     const updateHotel = (
         index: number,
         field: keyof Hotel,
-        value: string
+        value: string | number
     ) => {
         setHotels((current) =>
             current.map((hotel, hotelIndex) =>
                 hotelIndex === index
                     ? {
-                          ...hotel,
-                          [field]: value,
-                      }
+                        ...hotel,
+                        [field]: value,
+                    }
                     : hotel
             )
         );
@@ -465,9 +466,9 @@ function EditItineraryContent() {
 
                 vehicleOptions: vehicleEnabled
                     ? vehicleOptions.filter(
-                          (vehicle) =>
-                              vehicle.vehicleId
-                      )
+                        (vehicle) =>
+                            vehicle.vehicleId
+                    )
                     : [],
 
                 /*
@@ -476,11 +477,11 @@ function EditItineraryContent() {
                  */
                 packageOptions:
                     selectedService?.pricingModel ===
-                    "package"
+                        "package"
                         ? packageOptions.filter(
-                              (option) =>
-                                  option.packageId
-                          )
+                            (option) =>
+                                option.packageId
+                        )
                         : [],
 
                 hotelEnabled,
@@ -843,7 +844,7 @@ function EditItineraryContent() {
                                 firmSearch.trim() && (
                                     <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
                                         {filteredFirms.length >
-                                        0 ? (
+                                            0 ? (
                                             filteredFirms.map(
                                                 (
                                                     firm
@@ -1016,10 +1017,10 @@ function EditItineraryContent() {
                                         <div>
                                             {index ===
                                                 0 && (
-                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                    Vehicle
-                                                </label>
-                                            )}
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                        Vehicle
+                                                    </label>
+                                                )}
 
                                             <select
                                                 value={
@@ -1074,10 +1075,10 @@ function EditItineraryContent() {
                                         <div>
                                             {index ===
                                                 0 && (
-                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                    Price
-                                                </label>
-                                            )}
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                        Price
+                                                    </label>
+                                                )}
 
                                             <input
                                                 type="number"
@@ -1137,41 +1138,14 @@ function EditItineraryContent() {
                 {/* Package Pricing */}
                 {selectedService?.pricingModel ===
                     "package" && (
-                    <section
-                        className={
-                            sectionClass
-                        }
-                    >
-                        {packageOptions.length ===
-                        0 ? (
-                            <div className="flex items-center justify-between gap-4">
-                                <div>
-                                    <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                                        Package
-                                        Pricing
-                                    </h2>
-
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        Optional
-                                        package
-                                        pricing.
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={
-                                        addPackageOption
-                                    }
-                                    className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                                >
-                                    + Add Package
-                                    Pricing
-                                </button>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="mb-5 flex items-center justify-between gap-4">
+                        <section
+                            className={
+                                sectionClass
+                            }
+                        >
+                            {packageOptions.length ===
+                                0 ? (
+                                <div className="flex items-center justify-between gap-4">
                                     <div>
                                         <h2 className="text-lg font-bold tracking-tight text-slate-900">
                                             Package
@@ -1179,158 +1153,185 @@ function EditItineraryContent() {
                                         </h2>
 
                                         <p className="mt-1 text-sm text-slate-500">
-                                            Add
+                                            Optional
                                             package
-                                            options
-                                            and
-                                            quoted
-                                            prices.
+                                            pricing.
                                         </p>
                                     </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setPackageOptions(
-                                                []
-                                            )
-                                        }
-                                        className="text-sm font-medium text-red-600 hover:underline"
-                                    >
-                                        Remove package
-                                        pricing
-                                    </button>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {packageOptions.map(
-                                        (
-                                            option,
-                                            index
-                                        ) => (
-                                            <div
-                                                key={
-                                                    index
-                                                }
-                                                className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
-                                            >
-                                                <div>
-                                                    {index ===
-                                                        0 && (
-                                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                            Package
-                                                        </label>
-                                                    )}
-
-                                                    <select
-                                                        value={
-                                                            option.packageId
-                                                        }
-                                                        onChange={(
-                                                            e
-                                                        ) =>
-                                                            updatePackageOption(
-                                                                index,
-                                                                "packageId",
-                                                                e
-                                                                    .target
-                                                                    .value
-                                                            )
-                                                        }
-                                                        className={
-                                                            selectClass
-                                                        }
-                                                    >
-                                                        <option value="">
-                                                            Select
-                                                            package
-                                                        </option>
-
-                                                        {selectedService.packageOptions?.map(
-                                                            (
-                                                                packageOption
-                                                            ) => (
-                                                                <option
-                                                                    key={
-                                                                        packageOption.id
-                                                                    }
-                                                                    value={
-                                                                        packageOption.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        packageOption.name
-                                                                    }
-                                                                </option>
-                                                            )
-                                                        )}
-                                                    </select>
-                                                </div>
-
-                                                <div>
-                                                    {index ===
-                                                        0 && (
-                                                        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                            Price
-                                                        </label>
-                                                    )}
-
-                                                    <input
-                                                        type="number"
-                                                        min={0}
-                                                        value={
-                                                            option.price
-                                                        }
-                                                        onChange={(
-                                                            e
-                                                        ) =>
-                                                            updatePackageOption(
-                                                                index,
-                                                                "price",
-                                                                e
-                                                                    .target
-                                                                    .value
-                                                            )
-                                                        }
-                                                        placeholder="₹ Package price"
-                                                        className={
-                                                            inputClass
-                                                        }
-                                                    />
-                                                </div>
-
-                                                <div className="flex items-end">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removePackageOption(
-                                                                index
-                                                            )
-                                                        }
-                                                        className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                                                    >
-                                                        Remove
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )
-                                    )}
 
                                     <button
                                         type="button"
                                         onClick={
                                             addPackageOption
                                         }
-                                        className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                        className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                                     >
-                                        + Add Another
-                                        Package
+                                        + Add Package
+                                        Pricing
                                     </button>
                                 </div>
-                            </>
-                        )}
-                    </section>
-                )}
+                            ) : (
+                                <>
+                                    <div className="mb-5 flex items-center justify-between gap-4">
+                                        <div>
+                                            <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                                                Package
+                                                Pricing
+                                            </h2>
+
+                                            <p className="mt-1 text-sm text-slate-500">
+                                                Add
+                                                package
+                                                options
+                                                and
+                                                quoted
+                                                prices.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setPackageOptions(
+                                                    []
+                                                )
+                                            }
+                                            className="text-sm font-medium text-red-600 hover:underline"
+                                        >
+                                            Remove package
+                                            pricing
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        {packageOptions.map(
+                                            (
+                                                option,
+                                                index
+                                            ) => (
+                                                <div
+                                                    key={
+                                                        index
+                                                    }
+                                                    className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
+                                                >
+                                                    <div>
+                                                        {index ===
+                                                            0 && (
+                                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                    Package
+                                                                </label>
+                                                            )}
+
+                                                        <select
+                                                            value={
+                                                                option.packageId
+                                                            }
+                                                            onChange={(
+                                                                e
+                                                            ) =>
+                                                                updatePackageOption(
+                                                                    index,
+                                                                    "packageId",
+                                                                    e
+                                                                        .target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            className={
+                                                                selectClass
+                                                            }
+                                                        >
+                                                            <option value="">
+                                                                Select
+                                                                package
+                                                            </option>
+
+                                                            {selectedService.packageOptions?.map(
+                                                                (
+                                                                    packageOption
+                                                                ) => (
+                                                                    <option
+                                                                        key={
+                                                                            packageOption.id
+                                                                        }
+                                                                        value={
+                                                                            packageOption.id
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            packageOption.name
+                                                                        }
+                                                                    </option>
+                                                                )
+                                                            )}
+                                                        </select>
+                                                    </div>
+
+                                                    <div>
+                                                        {index ===
+                                                            0 && (
+                                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                    Price
+                                                                </label>
+                                                            )}
+
+                                                        <input
+                                                            type="number"
+                                                            min={0}
+                                                            value={
+                                                                option.price
+                                                            }
+                                                            onChange={(
+                                                                e
+                                                            ) =>
+                                                                updatePackageOption(
+                                                                    index,
+                                                                    "price",
+                                                                    e
+                                                                        .target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            placeholder="₹ Package price"
+                                                            className={
+                                                                inputClass
+                                                            }
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex items-end">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removePackageOption(
+                                                                    index
+                                                                )
+                                                            }
+                                                            className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            onClick={
+                                                addPackageOption
+                                            }
+                                            className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                        >
+                                            + Add Another
+                                            Package
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </section>
+                    )}
 
                 {/* Hotels */}
                 <section className={sectionClass}>
@@ -1487,25 +1488,35 @@ function EditItineraryContent() {
                                             />
 
                                             <input
-                                                value={
-                                                    hotel.roomType ??
-                                                    ""
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
+                                                value={hotel.roomType ?? ""}
+                                                onChange={(e) =>
                                                     updateHotel(
                                                         index,
                                                         "roomType",
-                                                        e
-                                                            .target
-                                                            .value
+                                                        e.target.value
                                                     )
                                                 }
                                                 placeholder="Room type"
-                                                className={
-                                                    inputClass
+                                                className={inputClass}
+                                            />
+
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                value={hotel.rooms ?? 1}
+                                                onChange={(e) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "rooms",
+                                                        Math.max(
+                                                            1,
+                                                            Number(e.target.value) || 1
+                                                        )
+                                                    )
                                                 }
+                                                placeholder="No. of rooms"
+                                                className={inputClass}
                                             />
 
                                             <select

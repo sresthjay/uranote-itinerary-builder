@@ -309,6 +309,7 @@ export default function NewItineraryPage() {
                 checkIn: "",
                 checkOut: "",
                 roomType: "",
+                rooms: 1,
                 mealPlan: "",
             },
         ]);
@@ -317,7 +318,7 @@ export default function NewItineraryPage() {
     const updateHotel = (
         index: number,
         field: keyof Hotel,
-        value: string
+        value: string | number
     ) => {
         setHotels((current) =>
             current.map((hotel, hotelIndex) =>
@@ -1295,25 +1296,35 @@ export default function NewItineraryPage() {
                                             />
 
                                             <input
-                                                value={
-                                                    hotel.roomType ??
-                                                    ""
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
+                                                value={hotel.roomType ?? ""}
+                                                onChange={(e) =>
                                                     updateHotel(
                                                         index,
                                                         "roomType",
-                                                        e
-                                                            .target
-                                                            .value
+                                                        e.target.value
                                                     )
                                                 }
                                                 placeholder="Room type"
-                                                className={
-                                                    inputClass
+                                                className={inputClass}
+                                            />
+
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                value={hotel.rooms ?? 1}
+                                                onChange={(e) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "rooms",
+                                                        Math.max(
+                                                            1,
+                                                            Number(e.target.value) || 1
+                                                        )
+                                                    )
                                                 }
+                                                placeholder="No. of rooms"
+                                                className={inputClass}
                                             />
 
                                             <select
