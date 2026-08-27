@@ -29,7 +29,7 @@ export const regions: Region[] = [
         */
 
         paymentPolicy: [
-            "A 30% advance payment is required to confirm a taxi-only booking.",
+            "A 20% advance payment is required to confirm a taxi-only booking.",
 
             "For complete tour packages, a 50% advance payment is required to confirm the booking.",
 
