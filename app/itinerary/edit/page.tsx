@@ -1504,15 +1504,17 @@ function EditItineraryContent() {
                                                 type="number"
                                                 min="1"
                                                 step="1"
-                                                value={hotel.rooms ?? 1}
+                                                value={hotel.rooms ?? ""}
                                                 onChange={(e) =>
                                                     updateHotel(
                                                         index,
                                                         "rooms",
-                                                        Math.max(
-                                                            1,
-                                                            Number(e.target.value) || 1
-                                                        )
+                                                        e.target.value === ""
+                                                            ? ""
+                                                            : Math.max(
+                                                                1,
+                                                                Number(e.target.value)
+                                                            )
                                                     )
                                                 }
                                                 placeholder="No. of rooms"
