@@ -86,7 +86,7 @@ export function buildItineraryExportData(itinerary: Itinerary) {
                 seatingCapacity: vehicle.seatingCapacity,
                 carrier: vehicle.carrier,
                 price: option.price,
-                quantity: option.quantity,
+                quantity: option.quantity || 1,
             };
         })
         .filter(
