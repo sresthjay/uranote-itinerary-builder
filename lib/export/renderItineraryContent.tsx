@@ -234,7 +234,7 @@ function stripInlineHtml(value: string) {
             .replace(/<i[^>]*>/gi, "")
             .replace(/<\/i>/gi, "")
             .replace(/<[^>]+>/g, "")
-    ).trim();
+    )
 }
 
 /*
