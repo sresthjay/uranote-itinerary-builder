@@ -40,6 +40,11 @@ Font.register({
             fontWeight: 400,
         },
         {
+            src: "/fonts/Montserrat-Italic.ttf",
+            fontWeight: 400,
+            fontStyle: "italic",
+        },
+        {
             src: "/fonts/Montserrat-Medium.ttf",
             fontWeight: 500,
         },

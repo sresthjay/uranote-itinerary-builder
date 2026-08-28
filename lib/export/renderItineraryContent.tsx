@@ -159,6 +159,44 @@ const styles = StyleSheet.create({
 
         lineHeight: 1.55,
     },
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Inline Formatting
+    |-------------------------------------------------------------------------- 
+    */
+
+    bold: {
+        fontWeight: 600,
+    },
+
+    italic: {
+        fontStyle: "italic",
+    },
+
+    blockquote: {
+        marginTop: 6,
+        marginBottom: 10,
+
+        paddingLeft: 12,
+        paddingRight: 10,
+        paddingVertical: 7,
+
+        borderLeftWidth: 3,
+        borderLeftColor: "#C8923E",
+
+        backgroundColor: "#F8F0E3",
+    },
+
+    blockquoteText: {
+        fontFamily: "Montserrat",
+        fontSize: 10.5,
+        fontWeight: 400,
+
+        color: "#514040",
+
+        lineHeight: 1.6,
+    },
 });
 
 /*
@@ -226,7 +264,67 @@ function extractBlocks(
 */
 
 function renderInlineText(html: string) {
-    return stripInlineHtml(html);
+    const parts = html.split(
+        /(<strong[^>]*>[\s\S]*?<\/strong>|<b[^>]*>[\s\S]*?<\/b>|<em[^>]*>[\s\S]*?<\/em>|<i[^>]*>[\s\S]*?<\/i>)/gi
+    );
+
+    return parts
+        .map((part, index) => {
+            if (!part) return null;
+
+            const isBold =
+                /^<(strong|b)/i.test(part);
+
+            const isItalic =
+                /^<(em|i)/i.test(part);
+
+            const text = stripInlineHtml(part);
+
+            if (!text) return null;
+
+            if (isBold && isItalic) {
+                return (
+                    <Text
+                        key={index}
+                        style={[
+                            styles.bold,
+                            styles.italic,
+                        ]}
+                    >
+                        {text}
+                    </Text>
+                );
+            }
+
+            if (isBold) {
+                return (
+                    <Text
+                        key={index}
+                        style={styles.bold}
+                    >
+                        {text}
+                    </Text>
+                );
+            }
+
+            if (isItalic) {
+                return (
+                    <Text
+                        key={index}
+                        style={styles.italic}
+                    >
+                        {text}
+                    </Text>
+                );
+            }
+
+            return (
+                <Text key={index}>
+                    {text}
+                </Text>
+            );
+        })
+        .filter(Boolean);
 }
 
 /*
@@ -280,7 +378,7 @@ export function renderItineraryContent(
     */
 
     const blockRegex =
-        /(<h2[^>]*>[\s\S]*?<\/h2>|<h3[^>]*>[\s\S]*?<\/h3>|<p[^>]*>[\s\S]*?<\/p>|___LIST_BLOCK_\d+___)/gi;
+        /(<h2[^>]*>[\s\S]*?<\/h2>|<h3[^>]*>[\s\S]*?<\/h3>|<blockquote[^>]*>[\s\S]*?<\/blockquote>|<p[^>]*>[\s\S]*?<\/p>|___LIST_BLOCK_\d+___)/gi;
 
     const parts = processedHtml
         .split(blockRegex)
@@ -374,6 +472,33 @@ export function renderItineraryContent(
                         );
                     }
                 }
+            );
+
+            return;
+        }
+
+        /*
+|--------------------------------------------------------------------------
+| Blockquote
+|--------------------------------------------------------------------------
+*/
+
+        const blockquote = part.match(
+            /^<blockquote[^>]*>([\s\S]*?)<\/blockquote>$/i
+        );
+
+        if (blockquote) {
+            blocks.push(
+                <View
+                    key={index}
+                    style={styles.blockquote}
+                >
+                    <Text style={styles.blockquoteText}>
+                        {renderInlineText(
+                            blockquote[1]
+                        )}
+                    </Text>
+                </View>
             );
 
             return;

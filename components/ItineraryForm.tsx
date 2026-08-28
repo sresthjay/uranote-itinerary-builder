@@ -124,6 +124,11 @@ export default function ItineraryForm({
 }: ItineraryFormProps) {
     const router = useRouter();
 
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [exporting, setExporting] = useState<
+        "json" | "pdf" | null
+    >(null);
+
     const [customerName, setCustomerName] = useState(
         initialItinerary?.customerName ?? ""
     );
@@ -580,15 +585,24 @@ export default function ItineraryForm({
         }
 
         setSaving(true);
+        setSaveSuccess(false);
 
         try {
             const itinerary = buildItinerary();
 
             await saveItinerary(itinerary);
 
-            router.push(
-                `/itinerary/edit?id=${itinerary.id}`
-            );
+            setSaveSuccess(true);
+
+            setTimeout(() => {
+                setSaveSuccess(false);
+            }, 1000);
+
+            if (mode === "create") {
+                router.push(
+                    `/itinerary/edit?id=${itinerary.id}`
+                );
+            }
         } catch (error) {
             console.error(
                 "Failed to save itinerary:",
@@ -658,41 +672,71 @@ export default function ItineraryForm({
                                 ← Dashboard
                             </button>
 
-                            <button
-                                type="button"
-                                onClick={
-                                    handleSave
-                                }
-                                disabled={saving}
-                                className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
-                            >
-                                {saving
-                                    ? "Updating..."
-                                    : mode ===
-                                        "edit"
-                                        ? "Update"
-                                        : "Save"}
-                            </button>
+                            <div className="relative flex flex-col items-end">
+                                <button
+                                    type="button"
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
+                                >
+                                    {saving
+                                        ? mode === "edit"
+                                            ? "Updating..."
+                                            : "Saving..."
+                                        : mode === "edit"
+                                            ? "Update"
+                                            : "Save"}
+                                </button>
+
+                                {saveSuccess && (
+                                    <span className="absolute right-0 top-full mt-1.5 whitespace-nowrap rounded-md bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 shadow-sm">
+                                        {mode === "edit"
+                                            ? "✓ Updated"
+                                            : "✓ Saved"}
+                                    </span>
+                                )}
+                            </div>
+
+
 
                             <button
                                 type="button"
-                                onClick={
-                                    handleExportJson
-                                }
+                                onClick={() => {
+                                    setExporting("json");
+                                    handleExportJson();
+
+                                    setTimeout(() => {
+                                        setExporting(null);
+                                    }, 1000);
+                                }}
                                 className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
                             >
                                 JSON
                             </button>
 
-                            <button
-                                type="button"
-                                onClick={
-                                    handleExportPdf
-                                }
-                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
-                            >
-                                PDF
-                            </button>
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setExporting("pdf");
+                                        handleExportPdf();
+
+                                        setTimeout(() => {
+                                            setExporting(null);
+                                        }, 1000);
+                                    }}
+                                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
+                                >
+                                    PDF
+                                </button>
+
+                                {exporting && (
+                                    <span className="absolute right-0 top-full mt-1.5 whitespace-nowrap rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 shadow-sm">
+                                        Exporting...
+                                    </span>
+                                )}
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1903,6 +1947,18 @@ export default function ItineraryForm({
                                 }
                             >
                                 Redo
+                            </ToolbarButton>
+
+                            <ToolbarButton
+                                onClick={() =>
+                                    editor
+                                        .chain()
+                                        .focus()
+                                        .toggleBlockquote()
+                                        .run()
+                                }
+                            >
+                                Quote
                             </ToolbarButton>
                         </div>
                     </div>
