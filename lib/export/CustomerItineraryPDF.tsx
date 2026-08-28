@@ -1395,6 +1395,8 @@ export function CustomerItineraryPDF({
                                                 {" · "}
                                                 {vehicle.seatingCapacity} Seater
                                                 {vehicle.carrier && " · Carrier"}
+                                                {Number(vehicle.quantity) > 1 &&
+                                                    ` · ${vehicle.quantity} Vehicles`}
                                             </Text>
 
                                             <Text

@@ -16,6 +16,7 @@ export interface Hotel {
 export interface VehicleOption {
   vehicleId: string;
   price: number;
+  quantity: number | "";
 }
 
 export interface Itinerary {

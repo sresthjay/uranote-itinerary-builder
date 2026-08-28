@@ -327,6 +327,7 @@ function EditItineraryContent() {
             {
                 vehicleId: "",
                 price: 0,
+                quantity: 1,
             },
         ]);
     };
@@ -334,7 +335,7 @@ function EditItineraryContent() {
     const updateVehicle = (
         index: number,
         field: keyof VehicleOption,
-        value: string
+        value: string | number
     ) => {
         setVehicleOptions((current) =>
             current.map((vehicle, vehicleIndex) => {
@@ -349,10 +350,27 @@ function EditItineraryContent() {
                     };
                 }
 
-                return {
-                    ...vehicle,
-                    vehicleId: value,
-                };
+                if (field === "quantity") {
+                    return {
+                        ...vehicle,
+                        quantity:
+                            value === ""
+                                ? ""
+                                : Math.max(
+                                    1,
+                                    Number(value)
+                                ),
+                    };
+                }
+
+                if (field === "vehicleId") {
+                    return {
+                        ...vehicle,
+                        vehicleId: String(value),
+                    };
+                }
+
+                return vehicle;
             })
         );
     };
@@ -970,32 +988,25 @@ function EditItineraryContent() {
                     </div>
                 </section>
 
-                {/* Vehicle */}
+                {/* Vehicle / Pricing */}
                 <section className={sectionClass}>
                     <div className="mb-5 flex items-center justify-between gap-4">
                         <div>
                             <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                                Vehicle Options
+                                Vehicle & Pricing
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-500">
-                                Add one or more vehicle
-                                options with quoted
-                                prices.
+                                Add vehicle options, quantities and quoted prices.
                             </p>
                         </div>
 
                         <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
                             <input
                                 type="checkbox"
-                                checked={
-                                    vehicleEnabled
-                                }
+                                checked={vehicleEnabled}
                                 onChange={(e) =>
-                                    setVehicleEnabled(
-                                        e.target
-                                            .checked
-                                    )
+                                    setVehicleEnabled(e.target.checked)
                                 }
                                 className="h-4 w-4 rounded border-slate-300"
                             />
@@ -1006,128 +1017,118 @@ function EditItineraryContent() {
 
                     {vehicleEnabled && (
                         <div className="space-y-3">
-                            {vehicleOptions.map(
-                                (
-                                    option,
-                                    index
-                                ) => (
-                                    <div
-                                        key={index}
-                                        className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm transition hover:border-slate-300 hover:bg-white md:grid-cols-[1fr_220px_auto]"
-                                    >
-                                        <div>
-                                            {index ===
-                                                0 && (
-                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                        Vehicle
-                                                    </label>
-                                                )}
+                            {vehicleOptions.map((option, index) => (
+                                <div
+                                    key={index}
+                                    className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_140px_220px_auto]"
+                                >
+                                    {/* Vehicle */}
+                                    <div>
+                                        {index === 0 && (
+                                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                Vehicle
+                                            </label>
+                                        )}
 
-                                            <select
-                                                value={
-                                                    option.vehicleId
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    updateVehicle(
-                                                        index,
-                                                        "vehicleId",
-                                                        e
-                                                            .target
-                                                            .value
-                                                    )
-                                                }
-                                                className={
-                                                    selectClass
-                                                }
-                                            >
-                                                <option value="">
-                                                    Select
-                                                    vehicle
+                                        <select
+                                            value={option.vehicleId}
+                                            onChange={(e) =>
+                                                updateVehicle(
+                                                    index,
+                                                    "vehicleId",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className={selectClass}
+                                        >
+                                            <option value="">
+                                                Select vehicle
+                                            </option>
+
+                                            {vehicles.map((vehicle) => (
+                                                <option
+                                                    key={vehicle.id}
+                                                    value={vehicle.id}
+                                                >
+                                                    {vehicle.name} ·{" "}
+                                                    {vehicle.seatingCapacity} seats
                                                 </option>
-
-                                                {vehicles.map(
-                                                    (
-                                                        vehicle
-                                                    ) => (
-                                                        <option
-                                                            key={
-                                                                vehicle.id
-                                                            }
-                                                            value={
-                                                                vehicle.id
-                                                            }
-                                                        >
-                                                            {
-                                                                vehicle.name
-                                                            }{" "}
-                                                            ·{" "}
-                                                            {
-                                                                vehicle.seatingCapacity
-                                                            }{" "}
-                                                            seats
-                                                        </option>
-                                                    )
-                                                )}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            {index ===
-                                                0 && (
-                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                                        Price
-                                                    </label>
-                                                )}
-
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                value={
-                                                    option.price ||
-                                                    ""
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    updateVehicle(
-                                                        index,
-                                                        "price",
-                                                        e
-                                                            .target
-                                                            .value
-                                                    )
-                                                }
-                                                placeholder="₹ Quoted price"
-                                                className={
-                                                    inputClass
-                                                }
-                                            />
-                                        </div>
-
-                                        <div className="flex items-end">
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removeVehicle(
-                                                        index
-                                                    )
-                                                }
-                                                className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
+                                            ))}
+                                        </select>
                                     </div>
-                                )
-                            )}
+
+                                    {/* Quantity */}
+                                    <div>
+                                        {index === 0 && (
+                                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                Quantity
+                                            </label>
+                                        )}
+
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            step={1}
+                                            value={option.quantity ?? ""}
+                                            onChange={(e) =>
+                                                updateVehicle(
+                                                    index,
+                                                    "quantity",
+                                                    e.target.value === ""
+                                                        ? ""
+                                                        : Math.max(
+                                                            1,
+                                                            Number(e.target.value)
+                                                        )
+                                                )
+                                            }
+                                            placeholder="Qty"
+                                            className={inputClass}
+                                        />
+                                    </div>
+
+                                    {/* Price */}
+                                    <div>
+                                        {index === 0 && (
+                                            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                Price
+                                            </label>
+                                        )}
+
+                                        <input
+                                            type="number"
+                                            min={0}
+                                            value={option.price || ""}
+                                            onChange={(e) =>
+                                                updateVehicle(
+                                                    index,
+                                                    "price",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="₹ Quoted price"
+                                            className={inputClass}
+                                        />
+                                    </div>
+
+                                    {/* Remove */}
+                                    <div className="flex items-end">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                removeVehicle(index)
+                                            }
+                                            className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
 
                             <button
                                 type="button"
-                                onClick={
-                                    addVehicle
-                                }
+                                onClick={addVehicle}
                                 className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
                             >
                                 + Add Vehicle
