@@ -1523,11 +1523,19 @@ export function CustomerItineraryPDF({
                                         }
                                     </Text>
 
+                                    {hotel.category && (
+                                        <Text style={styles.hotelDetail}>
+                                            Category:{" "}
+                                            {hotel.category}
+                                        </Text>
+                                    )}
+
                                     <Text
                                         style={
                                             styles.hotelDetail
                                         }
                                     >
+                                        Dates:{" "}
                                         {formatDate(
                                             hotel.checkIn
                                         )}{" "}

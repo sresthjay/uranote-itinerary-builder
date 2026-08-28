@@ -288,6 +288,7 @@ function EditItineraryContent() {
                 name: "",
                 checkIn: "",
                 checkOut: "",
+                category: "",
                 roomType: "",
                 rooms: 1,
                 mealPlan: "",
@@ -1441,6 +1442,42 @@ function EditItineraryContent() {
                                                     inputClass
                                                 }
                                             />
+
+                                            <select
+                                                value={hotel.category ?? ""}
+                                                onChange={(e) =>
+                                                    updateHotel(
+                                                        index,
+                                                        "category",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className={selectClass}
+                                            >
+                                                <option value="">
+                                                    Select hotel category
+                                                </option>
+
+                                                <option value="Budget">
+                                                    Budget
+                                                </option>
+
+                                                <option value="Deluxe">
+                                                    Deluxe
+                                                </option>
+
+                                                <option value="3 Star">
+                                                    3 Star
+                                                </option>
+
+                                                <option value="4 Star">
+                                                    4 Star
+                                                </option>
+
+                                                <option value="5 Star">
+                                                    5 Star
+                                                </option>
+                                            </select>
 
                                             <input
                                                 type="date"
