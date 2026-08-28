@@ -45,35 +45,51 @@ export default function HomePage() {
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
 
-    const loadItineraries = async () => {
-        try {
-            const data = await getItineraries();
-
-            const sorted = [...data].sort((a, b) => {
-                const dateA = new Date(
-                    a.updatedAt ?? a.createdAt
-                ).getTime();
-
-                const dateB = new Date(
-                    b.updatedAt ?? b.createdAt
-                ).getTime();
-
-                return dateB - dateA;
-            });
-
-            setItineraries(sorted);
-        } catch (error) {
-            console.error(
-                "Failed to load itineraries:",
-                error
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        loadItineraries();
+        let cancelled = false;
+
+        async function load() {
+            try {
+                const data = await getItineraries();
+
+                if (cancelled) {
+                    return;
+                }
+
+                const sorted = [...data].sort((a, b) => {
+                    const dateA = new Date(
+                        a.updatedAt ?? a.createdAt
+                    ).getTime();
+
+                    const dateB = new Date(
+                        b.updatedAt ?? b.createdAt
+                    ).getTime();
+
+                    return dateB - dateA;
+                });
+
+                setItineraries(sorted);
+            } catch (error) {
+                if (cancelled) {
+                    return;
+                }
+
+                console.error(
+                    "Failed to load itineraries:",
+                    error
+                );
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        load();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const filteredItineraries = useMemo(() => {
