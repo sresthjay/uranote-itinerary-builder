@@ -1,6 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -13,8 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+    applicationName: "Uranote Itinerary Builder",
     title: "Uranote Itinerary Builder",
     description: "Create, manage and export travel itineraries with Uranote.",
+    appleWebApp: {
+        capable: true,
+        title: "Uranote Itinerary Builder",
+        statusBarStyle: "default",
+    },
+    icons: {
+        apple: "/icons/icon.png",
+    },
+};
+
+export const viewport: Viewport = {
+    themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -29,6 +44,7 @@ export default function RootLayout({
         >
             <body className="min-h-screen">
                 {children}
+                <ServiceWorkerRegister />
             </body>
         </html>
     );
