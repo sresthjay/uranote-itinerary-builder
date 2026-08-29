@@ -161,6 +161,17 @@ export default function ItineraryForm({
         ""
     );
 
+    const [inclusions, setInclusions] = useState<string[]>(
+        (initialItinerary?.customInclusions ?? []).filter(
+            (item) =>
+                !services
+                    .find((service) => service.id === initialItinerary?.serviceId)
+                    ?.inclusions?.includes(item)
+        )
+    );
+
+    const [inclusionText, setInclusionText] = useState("");
+
     const [vehicleEnabled, setVehicleEnabled] =
         useState(
             initialItinerary?.vehicleEnabled ?? true
@@ -440,6 +451,28 @@ export default function ItineraryForm({
         );
     };
 
+    const addInclusion = () => {
+        const value = inclusionText.trim();
+
+        if (!value) return;
+
+        setInclusions((current) => [
+            ...current,
+            value,
+        ]);
+
+        setInclusionText("");
+    };
+
+    const removeInclusion = (index: number) => {
+        setInclusions((current) =>
+            current.filter(
+                (_, inclusionIndex) =>
+                    inclusionIndex !== index
+            )
+        );
+    };
+
     /* ---------------- Build Itinerary ---------------- */
 
     const buildItinerary = (): Itinerary => {
@@ -488,6 +521,8 @@ export default function ItineraryForm({
 
             content: editor?.getHTML() ?? "",
 
+            customInclusions: inclusions,
+
             createdAt:
                 mode === "edit" && initialItinerary
                     ? initialItinerary.createdAt
@@ -526,6 +561,36 @@ export default function ItineraryForm({
         const itinerary = buildItinerary();
 
         exportItineraryPdf(itinerary);
+    };
+
+    /* ---------------- Copy Itinerary ---------------- */
+
+    const handleCopy = async () => {
+        if (!editor) {
+            alert(
+                "Itinerary editor is not ready yet."
+            );
+            return;
+        }
+
+        const source = buildItinerary();
+
+        const now = new Date().toISOString();
+
+        const copiedItinerary: Itinerary = {
+            ...source,
+
+            id: crypto.randomUUID(),
+
+            createdAt: now,
+            updatedAt: undefined,
+        };
+
+        await saveItinerary(copiedItinerary);
+
+        router.push(
+            `/itinerary/edit?id=${copiedItinerary.id}`
+        );
     };
 
     /* ---------------- Save ---------------- */
@@ -671,6 +736,16 @@ export default function ItineraryForm({
                             >
                                 ← Dashboard
                             </button>
+
+                            {mode === "edit" && (
+                                <button
+                                    type="button"
+                                    onClick={handleCopy}
+                                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                                >
+                                    Copy
+                                </button>
+                            )}
 
                             <div className="relative flex flex-col items-end">
                                 <button
@@ -1071,22 +1146,20 @@ export default function ItineraryForm({
                                     serviceId
                                 }
                                 onChange={(e) => {
-                                    setServiceId(
-                                        e.target
-                                            .value
+                                    const newServiceId = e.target.value;
+
+                                    setServiceId(newServiceId);
+
+                                    setVehicleOptions([]);
+                                    setPackageOptions([]);
+                                    setPackageEnabled(false);
+
+                                    const newService = services.find(
+                                        (service) =>
+                                            service.id === newServiceId
                                     );
 
-                                    setVehicleOptions(
-                                        []
-                                    );
-
-                                    setPackageOptions(
-                                        []
-                                    );
-
-                                    setPackageEnabled(
-                                        false
-                                    );
+                                    setInclusions([]);
                                 }}
                                 className={
                                     selectClass
@@ -1319,7 +1392,8 @@ export default function ItineraryForm({
                 </section>
 
                 {/* Package Pricing */}
-                {selectedService?.pricingModel ===
+                {
+                    selectedService?.pricingModel ===
                     "package" && (
                         <section className={sectionClass}>
                             {packageOptions.length ===
@@ -1508,7 +1582,8 @@ export default function ItineraryForm({
                                 </>
                             )}
                         </section>
-                    )}
+                    )
+                }
 
                 {/* Hotels */}
                 <section className={sectionClass}>
@@ -1838,7 +1913,7 @@ export default function ItineraryForm({
                 </section>
 
                 {/* Itinerary Content */}
-                <section className="rounded-2xl border border-slate-200 bg-white shadow-md">
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-md mb-6">
                     <div className="sticky top-0 z-50 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
                         <div className="flex flex-wrap items-center gap-1">
                             <ToolbarButton
@@ -1971,7 +2046,77 @@ export default function ItineraryForm({
                         </div>
                     </div>
                 </section>
-            </div>
+
+                {/* Inclusions */}
+                <section className={sectionClass}>
+                    <div className="mb-5">
+                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                            Inclusions
+                        </h2>
+
+                        <p className="mt-1 text-sm text-slate-500">
+                            Review the default service inclusions and add
+                            any itinerary-specific inclusions.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        {/* Additional Inclusions */}
+
+                        {inclusions.length > 0 && (
+                            <div className="mt-4 space-y-2">
+                                {inclusions.map((inclusion, index) => (
+                                    <div
+                                        key={`custom-${index}`}
+                                        className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"
+                                    >
+                                        <span className="text-sm text-slate-500">
+                                            •
+                                        </span>
+
+                                        <span className="flex-1 text-sm text-slate-700">
+                                            {inclusion}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => removeInclusion(index)}
+                                            className="text-xs font-medium text-red-600 hover:underline"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                        <input
+                            value={inclusionText}
+                            onChange={(e) =>
+                                setInclusionText(e.target.value)
+                            }
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    addInclusion();
+                                }
+                            }}
+                            placeholder="Add another inclusion..."
+                            className={inputClass}
+                        />
+
+                        <button
+                            type="button"
+                            onClick={addInclusion}
+                            className="shrink-0 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                        >
+                            Add
+                        </button>
+                    </div>
+                </section>
+            </div >
 
             <button
                 type="button"
@@ -1986,6 +2131,6 @@ export default function ItineraryForm({
             >
                 ↑
             </button>
-        </main>
+        </main >
     );
 }

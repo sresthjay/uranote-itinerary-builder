@@ -150,6 +150,7 @@ export function buildItineraryExportData(itinerary: Itinerary) {
     const inclusions = [
         ...(service?.inclusions ?? []),
         ...(region?.inclusions ?? []),
+        ...(itinerary.customInclusions ?? []),
     ];
 
     /*

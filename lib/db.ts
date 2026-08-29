@@ -47,6 +47,9 @@ export interface Itinerary {
 
   content: string;
 
+  inclusions?: string[];
+  customInclusions?: string[];
+
   createdAt: string;
   updatedAt?: string;
 }
