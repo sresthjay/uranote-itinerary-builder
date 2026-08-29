@@ -1821,27 +1821,22 @@ export default function ItineraryForm({
                                                     hotel.rooms ??
                                                     1
                                                 }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    updateHotel(
-                                                        index,
-                                                        "rooms",
-                                                        e
-                                                            .target
-                                                            .value ===
-                                                            ""
-                                                            ? 1
-                                                            : Math.max(
-                                                                1,
-                                                                Number(
-                                                                    e
-                                                                        .target
-                                                                        .value
-                                                                )
-                                                            )
-                                                    )
-                                                }
+                                                onChange={(e) => {
+                                                    const rawValue = e.target.value;
+
+                                                    // If the user clears the input, pass an empty string or null
+                                                    if (rawValue === "") {
+                                                        updateHotel(index, "rooms", "");
+                                                        return;
+                                                    }
+
+                                                    const numValue = Number(rawValue);
+
+                                                    // Ensure the number is at least 1 if it's a valid number
+                                                    const finalValue = Math.max(1, numValue);
+
+                                                    updateHotel(index, "rooms", finalValue);
+                                                }}
                                                 placeholder="No. of rooms"
                                                 className={
                                                     inputClass
