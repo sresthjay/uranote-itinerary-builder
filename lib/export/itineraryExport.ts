@@ -171,11 +171,11 @@ export function buildItineraryExportData(itinerary: Itinerary) {
     */
 
     const paymentPolicy =
-        region?.paymentPolicy ?? [];
+        service?.paymentPolicy ?? [];
 
     const cancellationPolicy =
-        region?.cancellationPolicy ?? [];
-
+        service?.cancellationPolicy ?? [];
+    
     const terms =
         region?.terms ?? [];
 
