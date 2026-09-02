@@ -25,6 +25,9 @@ export default function EditItineraryPage() {
 
     useEffect(() => {
         if (!id) {
+            setItinerary(null);
+            setError("");
+            setLoading(false);
             return;
         }
 
@@ -32,19 +35,20 @@ export default function EditItineraryPage() {
 
         let cancelled = false;
 
+        setLoading(true);
+        setError("");
+        setItinerary(null);
+
         async function loadItinerary() {
             try {
-                const result =
-                    await getItinerary(itineraryId);
+                const result = await getItinerary(itineraryId);
 
                 if (cancelled) {
                     return;
                 }
 
                 if (!result) {
-                    setError(
-                        "Itinerary not found."
-                    );
+                    setError("Itinerary not found.");
                     setLoading(false);
                     return;
                 }
@@ -61,9 +65,7 @@ export default function EditItineraryPage() {
                     error
                 );
 
-                setError(
-                    "Failed to load itinerary."
-                );
+                setError("Failed to load itinerary.");
                 setLoading(false);
             }
         }
@@ -117,6 +119,7 @@ export default function EditItineraryPage() {
 
     return (
         <ItineraryForm
+            key={itinerary.id}
             mode="edit"
             initialItinerary={itinerary}
         />
