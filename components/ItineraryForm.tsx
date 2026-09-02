@@ -205,6 +205,7 @@ export default function ItineraryForm({
     );
 
     const [saving, setSaving] = useState(false);
+    const [copying, setCopying] = useState(false);
 
     const defaultFirm = firms.find(
         (firm) => firm.name === "Uranote Holidays"
@@ -567,30 +568,41 @@ export default function ItineraryForm({
 
     const handleCopy = async () => {
         if (!editor) {
-            alert(
-                "Itinerary editor is not ready yet."
-            );
+            alert("Itinerary editor is not ready yet.");
             return;
         }
 
-        const source = buildItinerary();
+        setCopying(true);
 
-        const now = new Date().toISOString();
+        try {
+            const source = buildItinerary();
+            const now = new Date().toISOString();
 
-        const copiedItinerary: Itinerary = {
-            ...source,
+            const copiedItinerary: Itinerary = {
+                ...source,
+                id: crypto.randomUUID(),
+                createdAt: now,
+                updatedAt: undefined,
+            };
 
-            id: crypto.randomUUID(),
+            await saveItinerary(copiedItinerary);
 
-            createdAt: now,
-            updatedAt: undefined,
-        };
+            // Show "Copying..." briefly
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        await saveItinerary(copiedItinerary);
+            // Return button to "Copy"
+            setCopying(false);
 
-        router.push(
-            `/itinerary/edit?id=${copiedItinerary.id}`
-        );
+            // Keep "Copy" visible for 1 second
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            // Open the copied itinerary
+            router.push(`/itinerary/edit?id=${copiedItinerary.id}`);
+        } catch (error) {
+            console.error("Failed to copy itinerary:", error);
+            alert("Failed to copy itinerary.");
+            setCopying(false);
+        }
     };
 
     /* ---------------- Save ---------------- */
@@ -741,9 +753,10 @@ export default function ItineraryForm({
                                 <button
                                     type="button"
                                     onClick={handleCopy}
-                                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                                    disabled={copying}
+                                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
                                 >
-                                    Copy
+                                    {copying ? "Copying..." : "Copy"}
                                 </button>
                             )}
 
