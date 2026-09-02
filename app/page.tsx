@@ -306,7 +306,7 @@ export default function HomePage() {
                                         className="group min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md sm:p-6"
                                     >
                                         <div className="flex min-w-0 w-full flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                                            <Link
+                                            <a
                                                 href={`/itinerary/edit?id=${itinerary.id}`}
                                                 className="min-w-0 w-full flex-1 overflow-hidden"
                                             >
@@ -381,15 +381,15 @@ export default function HomePage() {
                                                         </>
                                                     )}
                                                 </p>
-                                            </Link>
+                                            </a>
 
                                             <div className="flex shrink-0 items-center gap-2 border-t border-gray-100 pt-4 lg:border-0 lg:pt-0">
-                                                <Link
-                                                    href={`/itinerary/edit?id=${itinerary.id}`}
+                                                <a
+                                                    href={`/itinerary/edit/?id=${itinerary.id}`}
                                                     className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
                                                 >
                                                     Edit
-                                                </Link>
+                                                </a>
 
                                                 <button
                                                     type="button"
