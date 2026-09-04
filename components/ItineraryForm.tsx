@@ -648,16 +648,12 @@ export default function ItineraryForm({
         }
 
         if (endDate < startDate) {
-            alert(
-                "End date cannot be before start date."
-            );
+            alert("End date cannot be before start date.");
             return;
         }
 
         if (!editor) {
-            alert(
-                "Itinerary editor is not ready yet."
-            );
+            alert("Itinerary editor is not ready yet.");
             return;
         }
 
@@ -671,14 +667,16 @@ export default function ItineraryForm({
 
             setSaveSuccess(true);
 
-            setTimeout(() => {
-                setSaveSuccess(false);
-            }, 1000);
+            // Keep the success state visible briefly
+            await new Promise((resolve) =>
+                setTimeout(resolve, 1000)
+            );
+
+            setSaveSuccess(false);
 
             if (mode === "create") {
-                router.push(
-                    `/itinerary/edit?id=${itinerary.id}`
-                );
+                window.location.href =
+                    `/itinerary/edit/?id=${itinerary.id}`;
             }
         } catch (error) {
             console.error(
@@ -686,9 +684,7 @@ export default function ItineraryForm({
                 error
             );
 
-            alert(
-                "Failed to save itinerary."
-            );
+            alert("Failed to save itinerary.");
         } finally {
             setSaving(false);
         }
@@ -771,58 +767,58 @@ export default function ItineraryForm({
                                         ? mode === "edit"
                                             ? "Updating..."
                                             : "Saving..."
-                                        : mode === "edit"
-                                            ? "Update"
-                                            : "Save"}
+                                        : saveSuccess
+                                            ? "Saved"
+                                            : mode === "edit"
+                                                ? "Update"
+                                                : "Save"}
                                 </button>
-
-                                {saveSuccess && (
-                                    <span className="absolute right-0 top-full mt-1.5 whitespace-nowrap rounded-md bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 shadow-sm">
-                                        {mode === "edit"
-                                            ? "✓ Updated"
-                                            : "✓ Saved"}
-                                    </span>
-                                )}
                             </div>
 
 
 
                             <button
                                 type="button"
-                                onClick={() => {
+                                onClick={async () => {
                                     setExporting("json");
-                                    handleExportJson();
 
-                                    setTimeout(() => {
+                                    try {
+                                        await handleExportJson();
+
+                                        await new Promise((resolve) =>
+                                            setTimeout(resolve, 1000)
+                                        );
+                                    } finally {
                                         setExporting(null);
-                                    }, 1000);
+                                    }
                                 }}
-                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
+                                disabled={exporting !== null}
+                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
                             >
-                                JSON
+                                {exporting === "json" ? "Exporting..." : "JSON"}
                             </button>
 
                             <div className="relative">
                                 <button
                                     type="button"
-                                    onClick={() => {
+                                    onClick={async () => {
                                         setExporting("pdf");
-                                        handleExportPdf();
 
-                                        setTimeout(() => {
+                                        try {
+                                            await handleExportPdf();
+
+                                            await new Promise((resolve) =>
+                                                setTimeout(resolve, 1000)
+                                            );
+                                        } finally {
                                             setExporting(null);
-                                        }, 1000);
+                                        }
                                     }}
-                                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 sm:px-4 sm:py-2"
+                                    disabled={exporting !== null}
+                                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
                                 >
-                                    PDF
+                                    {exporting === "pdf" ? "Exporting..." : "PDF"}
                                 </button>
-
-                                {exporting && (
-                                    <span className="absolute right-0 top-full mt-1.5 whitespace-nowrap rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 shadow-sm">
-                                        Exporting...
-                                    </span>
-                                )}
                             </div>
 
                         </div>
