@@ -597,7 +597,8 @@ export default function ItineraryForm({
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             // Open the copied itinerary
-            router.push(`/itinerary/edit?id=${copiedItinerary.id}`);
+            window.location.href =
+                `/itinerary/edit/?id=${copiedItinerary.id}`;
         } catch (error) {
             console.error("Failed to copy itinerary:", error);
             alert("Failed to copy itinerary.");
