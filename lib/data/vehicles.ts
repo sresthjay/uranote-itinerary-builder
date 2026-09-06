@@ -42,6 +42,13 @@ export const vehicles: Vehicle[] = [
     },
 
     {
+        id: "amaze",
+        name: "Honda Amaze",
+        carrier: false,
+        seatingCapacity: 4,
+    },
+
+    {
         id: "ertiga",
         name: "Suzuki Ertiga",
         carrier: true,
@@ -95,6 +102,13 @@ export const vehicles: Vehicle[] = [
         name: "Traveller",
         carrier: true,
         seatingCapacity: 16,
+    },
+
+    {
+        id: "tempo-traveller-20",
+        name: "Traveller",
+        carrier: true,
+        seatingCapacity: 20,
     },
 
     {
