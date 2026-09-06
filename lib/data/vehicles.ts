@@ -14,6 +14,20 @@ export const vehicles: Vehicle[] = [
     },
 
     {
+        id: "glanza",
+        name: "Toyota Glanza",
+        carrier: true,
+        seatingCapacity: 4,
+    },
+
+    {
+        id: "taisor",
+        name: "Toyota Taisor",
+        carrier: true,
+        seatingCapacity: 4,
+    },
+
+    {
         id: "dzire",
         name: "Swift Dzire",
         carrier: true,
