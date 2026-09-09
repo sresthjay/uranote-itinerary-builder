@@ -331,11 +331,8 @@ export default function ItineraryForm({
                         ...vehicle,
                         quantity:
                             value === ""
-                                ? 1
-                                : Math.max(
-                                    1,
-                                    Number(value)
-                                ),
+                                ? ""
+                                : Math.max(1, Number(value)),
                     };
                 }
 
