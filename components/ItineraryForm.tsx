@@ -21,6 +21,8 @@ import { regions } from "@/lib/data/regions";
 import { services } from "@/lib/data/services";
 import { vehicles } from "@/lib/data/vehicles";
 
+import ThemeToggle from "./ThemeToggle";
+
 type ItineraryFormProps = {
     mode?: "create" | "edit";
     initialItinerary?: Itinerary;
@@ -37,7 +39,7 @@ function ToolbarButton({
         <button
             type="button"
             onClick={onClick}
-            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-95 sm:px-3 sm:py-2 sm:text-sm"
+            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 transition hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 hover:shadow-sm active:scale-95 sm:px-3 sm:py-2 sm:text-sm"
         >
             {children}
         </button>
@@ -110,13 +112,13 @@ function generateTitle(
 }
 
 const inputClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100";
+    "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 shadow-sm outline-none transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800";
 
 const selectClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100";
+    "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 shadow-sm outline-none transition focus:border-slate-400 dark:focus:border-slate-500 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800";
 
 const sectionClass =
-    "mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md";
+    "mb-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm transition-shadow hover:shadow-md";
 
 export default function ItineraryForm({
     mode = "create",
@@ -690,11 +692,11 @@ export default function ItineraryForm({
 
     if (!editor) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-slate-50">
-                <div className="rounded-2xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm">
-                    <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-slate-800" />
+            <main className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-8 py-6 text-center shadow-sm">
+                    <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 dark:border-slate-800 border-t-slate-800 dark:border-t-slate-200" />
 
-                    <p className="text-sm font-medium text-slate-600">
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                         Loading itinerary builder...
                     </p>
                 </div>
@@ -703,24 +705,24 @@ export default function ItineraryForm({
     }
 
     return (
-        <main className="min-h-screen bg-slate-50">
+        <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
             {/* Header */}
-            <header className="border-b border-slate-200/80 bg-white shadow-sm">
+            <header className="border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-950 shadow-sm">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         {/* Title */}
                         <div className="min-w-0 lg:flex-1">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 sm:text-[11px]">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 sm:text-[11px]">
                                 Itinerary Workspace
                             </p>
 
-                            <h1 className="truncate text-base font-bold tracking-tight text-slate-900 sm:text-xl">
+                            <h1 className="truncate text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-xl">
                                 {title}
                             </h1>
 
                             {mode === "edit" &&
                                 initialItinerary?.updatedAt && (
-                                    <p className="mt-0.5 text-[10px] text-slate-400 sm:text-xs">
+                                    <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500 sm:text-xs">
                                         Last updated{" "}
                                         {new Date(
                                             initialItinerary.updatedAt
@@ -733,12 +735,14 @@ export default function ItineraryForm({
 
                         {/* Actions */}
                         <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
+                            <ThemeToggle />
+
                             <button
                                 type="button"
                                 onClick={() =>
                                     router.push("/")
                                 }
-                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                                className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
                             >
                                 ← Dashboard
                             </button>
@@ -748,7 +752,7 @@ export default function ItineraryForm({
                                     type="button"
                                     onClick={handleCopy}
                                     disabled={copying}
-                                    className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
+                                    className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm"
                                 >
                                     {copying ? "Copying..." : "Copy"}
                                 </button>
@@ -759,7 +763,7 @@ export default function ItineraryForm({
                                     type="button"
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="rounded-lg bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
+                                    className="rounded-lg bg-slate-900 dark:bg-slate-100 px-3.5 py-2 text-xs font-semibold text-white dark:text-slate-900 shadow-sm transition hover:bg-slate-800 dark:hover:bg-white hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-xl sm:px-5 sm:py-2.5 sm:text-sm"
                                 >
                                     {saving
                                         ? mode === "edit"
@@ -791,7 +795,7 @@ export default function ItineraryForm({
                                     }
                                 }}
                                 disabled={exporting !== null}
-                                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
+                                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
                             >
                                 {exporting === "json" ? "Exporting..." : "JSON"}
                             </button>
@@ -813,7 +817,7 @@ export default function ItineraryForm({
                                         }
                                     }}
                                     disabled={exporting !== null}
-                                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
+                                    className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
                                 >
                                     {exporting === "pdf" ? "Exporting..." : "PDF"}
                                 </button>
@@ -828,11 +832,11 @@ export default function ItineraryForm({
                 {/* Trip Details */}
                 <section className={sectionClass}>
                     <div className="mb-5">
-                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                        <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                             Trip Details
                         </h2>
 
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             Customer, destination
                             and trip
                             configuration
@@ -842,7 +846,7 @@ export default function ItineraryForm({
                     <div className="grid gap-5 md:grid-cols-2">
                         {/* Customer Name */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Customer Name *
                             </label>
 
@@ -865,7 +869,7 @@ export default function ItineraryForm({
 
                         {/* Tour Name */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Tour Name *
                             </label>
 
@@ -888,7 +892,7 @@ export default function ItineraryForm({
 
                         {/* Start Date */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Start Date *
                             </label>
 
@@ -911,7 +915,7 @@ export default function ItineraryForm({
 
                         {/* End Date */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 End Date *
                             </label>
 
@@ -935,7 +939,7 @@ export default function ItineraryForm({
 
                         {/* Duration */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Duration
                             </label>
 
@@ -945,13 +949,13 @@ export default function ItineraryForm({
                                     duration
                                 }
                                 placeholder="Auto calculated"
-                                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-600 shadow-sm outline-none"
+                                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 shadow-sm outline-none"
                             />
                         </div>
 
                         {/* Pax */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 No. of Pax
                             </label>
 
@@ -999,7 +1003,7 @@ export default function ItineraryForm({
 
                         {/* Firm */}
                         <div className="relative">
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Firm
                             </label>
 
@@ -1052,7 +1056,7 @@ export default function ItineraryForm({
 
                             {showFirmResults &&
                                 firmSearch.trim() && (
-                                    <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                                    <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-lg">
                                         {filteredFirms.length >
                                             0 ? (
                                             filteredFirms.map(
@@ -1081,7 +1085,7 @@ export default function ItineraryForm({
                                                                 false
                                                             );
                                                         }}
-                                                        className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                                                        className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800"
                                                     >
                                                         {
                                                             firm.name
@@ -1090,7 +1094,7 @@ export default function ItineraryForm({
                                                 )
                                             )
                                         ) : (
-                                            <p className="px-3 py-2.5 text-sm text-slate-500">
+                                            <p className="px-3 py-2.5 text-sm text-slate-500 dark:text-slate-400">
                                                 No
                                                 matching
                                                 firm
@@ -1103,7 +1107,7 @@ export default function ItineraryForm({
 
                         {/* Region */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Region
                             </label>
 
@@ -1144,7 +1148,7 @@ export default function ItineraryForm({
 
                         {/* Service */}
                         <div>
-                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Service
                             </label>
 
@@ -1199,11 +1203,11 @@ export default function ItineraryForm({
                 <section className={sectionClass}>
                     <div className="mb-5 flex items-center justify-between gap-4">
                         <div>
-                            <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                                 Vehicle & Pricing
                             </h2>
 
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                 Add vehicle
                                 options,
                                 quantities
@@ -1212,7 +1216,7 @@ export default function ItineraryForm({
                             </p>
                         </div>
 
-                        <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+                        <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                             <input
                                 type="checkbox"
                                 checked={
@@ -1224,7 +1228,7 @@ export default function ItineraryForm({
                                             .checked
                                     )
                                 }
-                                className="h-4 w-4 rounded border-slate-300"
+                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700"
                             />
 
                             Include
@@ -1243,12 +1247,12 @@ export default function ItineraryForm({
                                         key={
                                             index
                                         }
-                                        className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_140px_220px_auto]"
+                                        className="grid gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-4 shadow-sm md:grid-cols-[1fr_140px_220px_auto]"
                                     >
                                         <div>
                                             {index ===
                                                 0 && (
-                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                                         Vehicle
                                                     </label>
                                                 )}
@@ -1305,7 +1309,7 @@ export default function ItineraryForm({
                                         <div>
                                             {index ===
                                                 0 && (
-                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                                         Quantity
                                                     </label>
                                                 )}
@@ -1338,7 +1342,7 @@ export default function ItineraryForm({
                                         <div>
                                             {index ===
                                                 0 && (
-                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                                         Price
                                                     </label>
                                                 )}
@@ -1376,7 +1380,7 @@ export default function ItineraryForm({
                                                         index
                                                     )
                                                 }
-                                                className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                className="w-full rounded-xl border border-red-200 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950"
                                             >
                                                 Remove
                                             </button>
@@ -1390,7 +1394,7 @@ export default function ItineraryForm({
                                 onClick={
                                     addVehicle
                                 }
-                                className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                className="inline-flex items-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                             >
                                 + Add Vehicle
                             </button>
@@ -1407,12 +1411,12 @@ export default function ItineraryForm({
                                 0 ? (
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
-                                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                                        <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                                             Package
                                             Pricing
                                         </h2>
 
-                                        <p className="mt-1 text-sm text-slate-500">
+                                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                             Optional
                                             package
                                             pricing.
@@ -1424,7 +1428,7 @@ export default function ItineraryForm({
                                         onClick={
                                             addPackageOption
                                         }
-                                        className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                                        className="rounded-xl bg-slate-900 dark:bg-slate-100 px-4 py-2.5 text-sm font-semibold text-white dark:text-slate-900 transition hover:bg-slate-800 dark:hover:bg-white"
                                     >
                                         + Add Package
                                         Pricing
@@ -1434,12 +1438,12 @@ export default function ItineraryForm({
                                 <>
                                     <div className="mb-5 flex items-center justify-between gap-4">
                                         <div>
-                                            <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                                            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                                                 Package
                                                 Pricing
                                             </h2>
 
-                                            <p className="mt-1 text-sm text-slate-500">
+                                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                                 Add
                                                 package
                                                 options
@@ -1472,12 +1476,12 @@ export default function ItineraryForm({
                                                     key={
                                                         index
                                                     }
-                                                    className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
+                                                    className="grid gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-4 shadow-sm md:grid-cols-[1fr_220px_auto]"
                                                 >
                                                     <div>
                                                         {index ===
                                                             0 && (
-                                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                                                     Package
                                                                 </label>
                                                             )}
@@ -1529,7 +1533,7 @@ export default function ItineraryForm({
                                                     <div>
                                                         {index ===
                                                             0 && (
-                                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                                                     Price
                                                                 </label>
                                                             )}
@@ -1566,7 +1570,7 @@ export default function ItineraryForm({
                                                                     index
                                                                 )
                                                             }
-                                                            className="w-full rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                            className="w-full rounded-xl border border-red-200 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950"
                                                         >
                                                             Remove
                                                         </button>
@@ -1580,7 +1584,7 @@ export default function ItineraryForm({
                                             onClick={
                                                 addPackageOption
                                             }
-                                            className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                            className="inline-flex items-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                                         >
                                             + Add Another
                                             Package
@@ -1596,18 +1600,18 @@ export default function ItineraryForm({
                 <section className={sectionClass}>
                     <div className="mb-5 flex items-center justify-between gap-4">
                         <div>
-                            <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                                 Hotels
                             </h2>
 
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                 Add hotel stays
                                 and meal
                                 plans.
                             </p>
                         </div>
 
-                        <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+                        <label className="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                             <input
                                 type="checkbox"
                                 checked={
@@ -1619,7 +1623,7 @@ export default function ItineraryForm({
                                             .checked
                                     )
                                 }
-                                className="h-4 w-4 rounded border-slate-300"
+                                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700"
                             />
 
                             Include hotel
@@ -1638,10 +1642,10 @@ export default function ItineraryForm({
                                         key={
                                             index
                                         }
-                                        className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 shadow-sm"
+                                        className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-5 shadow-sm"
                                     >
                                         <div className="mb-4 flex items-center justify-between">
-                                            <p className="text-sm font-bold text-slate-800">
+                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
                                                 Hotel{" "}
                                                 {index +
                                                     1}
@@ -1906,7 +1910,7 @@ export default function ItineraryForm({
                             <button
                                 type="button"
                                 onClick={addHotel}
-                                className="inline-flex items-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+                                className="inline-flex items-center rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                             >
                                 + Add Hotel
                             </button>
@@ -1915,8 +1919,8 @@ export default function ItineraryForm({
                 </section>
 
                 {/* Itinerary Content */}
-                <section className="rounded-2xl border border-slate-200 bg-white shadow-md mb-6">
-                    <div className="sticky top-0 z-50 border-b border-slate-200 bg-slate-50/95 p-2.5 shadow-sm backdrop-blur">
+                <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md mb-6">
+                    <div className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-slate-50/95 dark:bg-slate-900/95 p-2.5 shadow-sm backdrop-blur">
                         <div className="flex flex-wrap items-center gap-1">
                             <ToolbarButton
                                 onClick={() =>
@@ -1944,7 +1948,7 @@ export default function ItineraryForm({
                                 <em>I</em>
                             </ToolbarButton>
 
-                            <div className="mx-1 h-5 w-px bg-slate-200" />
+                            <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
 
                             <ToolbarButton
                                 onClick={() =>
@@ -1974,7 +1978,7 @@ export default function ItineraryForm({
                                 H3
                             </ToolbarButton>
 
-                            <div className="mx-1 h-5 w-px bg-slate-200" />
+                            <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
 
                             <ToolbarButton
                                 onClick={() =>
@@ -2000,7 +2004,7 @@ export default function ItineraryForm({
                                 1. List
                             </ToolbarButton>
 
-                            <div className="mx-1 h-5 w-px bg-slate-200" />
+                            <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-slate-700" />
 
                             <ToolbarButton
                                 onClick={() =>
@@ -2040,8 +2044,8 @@ export default function ItineraryForm({
                         </div>
                     </div>
 
-                    <div className="min-h-[700px] bg-slate-100/70 p-6 md:p-10">
-                        <div className="mx-auto min-h-[620px] max-w-4xl rounded-xl bg-white px-8 py-10 shadow-sm ring-1 ring-slate-200 md:px-12 md:py-12">
+                    <div className="min-h-[700px] bg-slate-100/70 p-6 md:p-10 dark:bg-slate-950">
+                        <div className="mx-auto min-h-[620px] max-w-4xl rounded-xl bg-white dark:bg-slate-900 px-8 py-10 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 md:px-12 md:py-12">
                             <EditorContent
                                 editor={editor}
                             />
@@ -2052,11 +2056,11 @@ export default function ItineraryForm({
                 {/* Inclusions */}
                 <section className={sectionClass}>
                     <div className="mb-5">
-                        <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                        <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
                             Inclusions
                         </h2>
 
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             Review the default service inclusions and add
                             any itinerary-specific inclusions.
                         </p>
@@ -2070,13 +2074,13 @@ export default function ItineraryForm({
                                 {inclusions.map((inclusion, index) => (
                                     <div
                                         key={`custom-${index}`}
-                                        className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"
+                                        className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"
                                     >
-                                        <span className="text-sm text-slate-500">
+                                        <span className="text-sm text-slate-500 dark:text-slate-400">
                                             •
                                         </span>
 
-                                        <span className="flex-1 text-sm text-slate-700">
+                                        <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">
                                             {inclusion}
                                         </span>
 
@@ -2112,7 +2116,7 @@ export default function ItineraryForm({
                         <button
                             type="button"
                             onClick={addInclusion}
-                            className="shrink-0 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                            className="shrink-0 rounded-xl bg-slate-900 dark:bg-slate-100 px-4 py-2.5 text-sm font-semibold text-white dark:text-slate-900 transition hover:bg-slate-800 dark:hover:bg-white"
                         >
                             Add
                         </button>
@@ -2128,7 +2132,7 @@ export default function ItineraryForm({
                         behavior: "smooth",
                     })
                 }
-                className="fixed bottom-5 right-5 z-50 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg transition hover:bg-slate-50 hover:shadow-xl"
+                className="fixed bottom-5 right-5 z-50 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-lg transition hover:bg-slate-50 dark:hover:bg-slate-800 hover:shadow-xl"
                 aria-label="Back to top"
             >
                 ↑

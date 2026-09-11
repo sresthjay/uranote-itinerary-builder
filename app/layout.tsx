@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import ThemeProvider from "@/components/ThemeProvider";
+
+const themeInitScript = `(function(){try{var t=localStorage.getItem("uranote-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark");}}catch(e){}})();`;
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -29,7 +32,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-    themeColor: "#ffffff",
+    themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+        { media: "(prefers-color-scheme: dark)", color: "#020617" },
+    ],
 };
 
 export default function RootLayout({
@@ -40,10 +46,18 @@ export default function RootLayout({
     return (
         <html
             lang="en"
+            suppressHydrationWarning
             className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
         >
             <body className="min-h-screen">
-                {children}
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: themeInitScript,
+                    }}
+                />
+                <ThemeProvider>
+                    {children}
+                </ThemeProvider>
                 <ServiceWorkerRegister />
             </body>
         </html>

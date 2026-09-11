@@ -23,21 +23,23 @@ export default function EditItineraryPage() {
     const [error, setError] =
         useState("");
 
+    const [prevId, setPrevId] = useState(id);
+
+    if (prevId !== id) {
+        setPrevId(id);
+        setItinerary(null);
+        setError("");
+        setLoading(Boolean(id));
+    }
+
     useEffect(() => {
         if (!id) {
-            setItinerary(null);
-            setError("");
-            setLoading(false);
             return;
         }
 
         const itineraryId = id;
 
         let cancelled = false;
-
-        setLoading(true);
-        setError("");
-        setItinerary(null);
 
         async function loadItinerary() {
             try {
