@@ -5,7 +5,7 @@ export const dynamic = "force-static";
 export default function manifest(): MetadataRoute.Manifest {
     return {
         name: "Uranote Itinerary Builder",
-        short_name: "Itinerary Builder",
+        short_name: "Uranote Itineraries",
         description:
             "Create and manage travel itineraries for Uranote.",
         start_url: "/",

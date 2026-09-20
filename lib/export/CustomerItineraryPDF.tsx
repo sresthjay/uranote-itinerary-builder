@@ -11,6 +11,7 @@ import {
 } from "@react-pdf/renderer";
 
 import { renderItineraryContent } from "./renderItineraryContent";
+import { formatMealPlan } from "../mealPlans";
 
 /*
 |--------------------------------------------------------------------------
@@ -1573,7 +1574,9 @@ export function CustomerItineraryPDF({
                                         >
                                             Meal Plan:{" "}
                                             {
-                                                hotel.mealPlan
+                                                formatMealPlan(
+                                                    hotel.mealPlan
+                                                )
                                             }
                                         </Text>
                                     )}
