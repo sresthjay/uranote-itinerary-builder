@@ -1,4 +1,4 @@
-const DB_NAME = "itinerary-builder";
+export const DB_NAME = "itinerary-builder";
 const DB_VERSION = 1;
 const STORE_NAME = "itineraries";
 
@@ -55,7 +55,7 @@ export interface Itinerary {
   updatedAt?: string;
 }
 
-function openDB(): Promise<IDBDatabase> {
+export function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 

@@ -17,7 +17,7 @@
     }
 `}</style>
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import ThemeToggle from "@/components/ThemeToggle";
@@ -27,6 +27,15 @@ import {
     deleteItinerary,
     Itinerary,
 } from "@/lib/db";
+
+import {
+    exportBackup,
+    readBackupFile,
+    restoreBackup,
+    BackupEnvelope,
+    BackupError,
+    BackupPreview,
+} from "@/lib/backup";
 
 function formatDate(date: string) {
     if (!date) return "";
@@ -42,10 +51,43 @@ function formatDate(date: string) {
     });
 }
 
+function formatExportDate(date: string) {
+    if (!date) return "";
+
+    const value = new Date(date);
+
+    if (Number.isNaN(value.getTime())) return "";
+
+    return value.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+}
+
 export default function HomePage() {
     const [itineraries, setItineraries] = useState<Itinerary[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
+
+    const [exporting, setExporting] =
+        useState(false);
+    const [importing, setImporting] =
+        useState(false);
+    const [
+        backupPreview,
+        setBackupPreview,
+    ] = useState<{
+        envelope: BackupEnvelope;
+        preview: BackupPreview;
+    } | null>(null);
+    const [backupMessage, setBackupMessage] =
+        useState<{
+            type: "success" | "error";
+            text: string;
+        } | null>(null);
+    const fileInputRef =
+        useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -138,6 +180,107 @@ export default function HomePage() {
             );
 
             alert("Failed to delete itinerary.");
+        }
+    };
+
+    const handleExportData = async () => {
+        setExporting(true);
+        setBackupMessage(null);
+
+        try {
+            await exportBackup();
+
+            setBackupMessage({
+                type: "success",
+                text: "Backup exported successfully.",
+            });
+        } catch (error) {
+            console.error(
+                "Failed to export backup:",
+                error
+            );
+
+            setBackupMessage({
+                type: "error",
+                text: "Failed to export backup.",
+            });
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    const handleImportFile = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+
+        event.target.value = "";
+
+        if (!file) return;
+
+        setBackupMessage(null);
+
+        try {
+            const result =
+                await readBackupFile(file);
+
+            setBackupPreview(result);
+        } catch (error) {
+            console.error(
+                "Failed to read backup file:",
+                error
+            );
+
+            setBackupMessage({
+                type: "error",
+                text:
+                    error instanceof BackupError
+                        ? error.message
+                        : "Failed to read backup file.",
+            });
+        }
+    };
+
+    const handleCancelImport = () => {
+        setBackupPreview(null);
+    };
+
+    const handleConfirmImport = async () => {
+        if (!backupPreview) return;
+
+        setImporting(true);
+
+        try {
+            await restoreBackup(
+                backupPreview.envelope
+            );
+
+            setBackupPreview(null);
+            setBackupMessage({
+                type: "success",
+                text: "Backup imported successfully. Reloading...",
+            });
+
+            window.setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+        } catch (error) {
+            console.error(
+                "Failed to import backup:",
+                error
+            );
+
+            setBackupPreview(null);
+
+            setBackupMessage({
+                type: "error",
+                text:
+                    error instanceof BackupError
+                        ? error.message
+                        : "Failed to import backup.",
+            });
+
+            setImporting(false);
         }
     };
 
@@ -415,7 +558,142 @@ export default function HomePage() {
                             )}
                         </div>
                     )}
+
+                {/* Data Backup */}
+                <section className="mt-10">
+                    <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm sm:p-6">
+                        <div>
+                            <h2 className="text-base font-semibold tracking-tight text-gray-950 dark:text-slate-50">
+                                Data
+                            </h2>
+
+                            <p className="mt-1 max-w-xl text-sm leading-6 text-gray-500 dark:text-slate-400">
+                                Export all itineraries stored on
+                                this device to a backup file, or
+                                restore them from a backup on
+                                another device.
+                            </p>
+                        </div>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <button
+                                type="button"
+                                onClick={handleExportData}
+                                disabled={exporting}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+                            >
+                                {exporting
+                                    ? "Exporting..."
+                                    : "Export Data"}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    fileInputRef.current?.click()
+                                }
+                                disabled={importing}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-slate-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-slate-300 transition hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {importing
+                                    ? "Importing..."
+                                    : "Import Data"}
+                            </button>
+                        </div>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".json,application/json"
+                            className="hidden"
+                            onChange={handleImportFile}
+                        />
+
+                        {backupMessage && (
+                            <p
+                                className={`mt-4 text-sm ${backupMessage.type === "success"
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-red-600 dark:text-red-400"
+                                }`}
+                            >
+                                {backupMessage.text}
+                            </p>
+                        )}
+                    </div>
+                </section>
             </div>
+
+            {/* Import Confirmation */}
+            {backupPreview && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xl">
+                        <h3 className="text-base font-semibold tracking-tight text-gray-950 dark:text-slate-50">
+                            Import backup?
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-400">
+                            This will replace all itineraries
+                            currently stored on this device with
+                            the data from this backup.
+                        </p>
+
+                        <div className="mt-4 space-y-1.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 p-4 text-sm">
+                            <p className="font-semibold text-gray-800 dark:text-slate-200">
+                                Backup contains{" "}
+                                {
+                                    backupPreview.preview
+                                        .itineraryCount
+                                }{" "}
+                                {backupPreview.preview
+                                    .itineraryCount === 1
+                                    ? "itinerary"
+                                    : "itineraries"}
+                                .
+                            </p>
+
+                            {backupPreview.preview
+                                .exportedAt && (
+                                    <p className="text-gray-600 dark:text-slate-400">
+                                        Exported on{" "}
+                                        {formatExportDate(
+                                            backupPreview
+                                                .preview
+                                                .exportedAt
+                                        )}
+                                        .
+                                    </p>
+                                )}
+                        </div>
+
+                        <p className="mt-4 text-sm text-gray-600 dark:text-slate-400">
+                            Continue? This will replace all
+                            current local data.
+                        </p>
+
+                        <div className="mt-5 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={handleCancelImport}
+                                disabled={importing}
+                                className="rounded-xl border border-gray-200 dark:border-slate-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-slate-300 transition hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleConfirmImport}
+                                disabled={importing}
+                                className="inline-flex items-center justify-center rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+                            >
+                                {importing
+                                    ? "Importing..."
+                                    : "Import Backup"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
