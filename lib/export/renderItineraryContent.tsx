@@ -15,10 +15,10 @@ import {
 |   Montserrat
 |
 | Colors:
-|   text       #263238
-|   tealDark   #103C3F
-|   teal       #164E52
-|   amber      #C8923E
+|   text       #1F292E
+|   tealDark   #0D3134
+|   teal       #124043
+|   amber      #A47833
 |
 |--------------------------------------------------------------------------
 */
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: 600,
 
-        color: "#103C3F",
+        color: "#0D3134",
 
         marginTop: 14,
         marginBottom: 7,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: 600,
 
-        color: "#164E52",
+        color: "#124043",
 
         marginTop: 11,
         marginBottom: 5,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: 500,
 
-        color: "#C8923E",
+        color: "#A47833",
 
         lineHeight: 1.55,
     },
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: 400,
 
-        color: "#263238",
+        color: "#1F292E",
 
         lineHeight: 1.55,
     },
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: 500,
 
-        color: "#C8923E",
+        color: "#A47833",
 
         lineHeight: 1.55,
     },
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: 400,
 
-        color: "#263238",
+        color: "#1F292E",
 
         lineHeight: 1.55,
     },
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         paddingVertical: 7,
 
         borderLeftWidth: 3,
-        borderLeftColor: "#C8923E",
+        borderLeftColor: "#A47833",
 
         backgroundColor: "#F8F0E3",
     },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
         fontSize: 10.5,
         fontWeight: 400,
 
-        color: "#514040",
+        color: "#423434",
 
         lineHeight: 1.6,
     },

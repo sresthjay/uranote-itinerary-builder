@@ -11,6 +11,7 @@ export interface Hotel {
   roomType?: string;
   rooms: number;
   mealPlan?: string;
+  mealType?: "veg" | "veg+non-veg" | "non-veg";
 }
 
 export interface VehicleOption {

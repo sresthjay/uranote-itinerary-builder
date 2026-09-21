@@ -12,6 +12,7 @@ import {
 
 import { renderItineraryContent } from "./renderItineraryContent";
 import { formatMealPlan } from "../mealPlans";
+import { formatMealType } from "../mealTypes";
 
 /*
 |--------------------------------------------------------------------------
@@ -63,18 +64,18 @@ Font.register({
 */
 
 export const colors = {
-    teal: "#164E52",
-    tealDark: "#103C3F",
+    teal: "#124043",
+    tealDark: "#0D3134",
     tealLight: "#EAF3F2",
 
-    amber: "#C8923E",
+    amber: "#A47833",
     amberLight: "#F8F0E3",
 
-    text: "#191c1e",
-    textLight: "#514040",
-    muted: "#899398",
+    text: "#151719",
+    textLight: "#423434",
+    muted: "#70797D",
 
-    border: "#E2E8E8",
+    border: "#B9BEBE",
     background: "#F7F9F8",
 
     white: "#FFFFFF",
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
         borderRadius: 7,
 
         borderWidth: 1,
-        borderColor: "#D7E7E5",
+        borderColor: "#B0BDBC",
     },
 
     infoRow: {
@@ -366,7 +367,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.amberLight,
 
         borderBottomWidth: 1,
-        borderBottomColor: "#EEDFC7",
+        borderBottomColor: "#C3B7A3",
     },
 
     quotationHeaderText: {
@@ -493,6 +494,16 @@ const styles = StyleSheet.create({
         color: colors.textLight,
 
         marginBottom: 2,
+
+        lineHeight: 1.4,
+    },
+
+    hotelDetailLabel: {
+        fontFamily: "Montserrat",
+        fontSize: 9.5,
+        fontWeight: 600,
+
+        color: colors.textLight,
 
         lineHeight: 1.4,
     },
@@ -1533,7 +1544,13 @@ export function CustomerItineraryPDF({
 
                                     {hotel.category && (
                                         <Text style={styles.hotelDetail}>
-                                            Category:{" "}
+                                            <Text
+                                                style={
+                                                    styles.hotelDetailLabel
+                                                }
+                                            >
+                                                Category:{" "}
+                                            </Text>
                                             {hotel.category}
                                         </Text>
                                     )}
@@ -1543,7 +1560,13 @@ export function CustomerItineraryPDF({
                                             styles.hotelDetail
                                         }
                                     >
-                                        Dates:{" "}
+                                        <Text
+                                            style={
+                                                styles.hotelDetailLabel
+                                            }
+                                        >
+                                            Dates:{" "}
+                                        </Text>
                                         {formatDate(
                                             hotel.checkIn
                                         )}{" "}
@@ -1555,7 +1578,13 @@ export function CustomerItineraryPDF({
 
                                     {(hotel.roomType || hotel.rooms) && (
                                         <Text style={styles.hotelDetail}>
-                                            Room:{" "}
+                                            <Text
+                                                style={
+                                                    styles.hotelDetailLabel
+                                                }
+                                            >
+                                                Room:{" "}
+                                            </Text>
                                             {hotel.roomType || "Room"}
                                             {hotel.rooms
                                                 ? ` · ${hotel.rooms} ${hotel.rooms === 1
@@ -1572,10 +1601,39 @@ export function CustomerItineraryPDF({
                                                 styles.hotelDetail
                                             }
                                         >
-                                            Meal Plan:{" "}
+                                            <Text
+                                                style={
+                                                    styles.hotelDetailLabel
+                                                }
+                                            >
+                                                Meal Plan:{" "}
+                                            </Text>
                                             {
                                                 formatMealPlan(
                                                     hotel.mealPlan
+                                                )
+                                            }
+                                        </Text>
+                                    )}
+
+                                    {formatMealType(
+                                        hotel.mealType
+                                    ) && (
+                                        <Text
+                                            style={
+                                                styles.hotelDetail
+                                            }
+                                        >
+                                            <Text
+                                                style={
+                                                    styles.hotelDetailLabel
+                                                }
+                                            >
+                                                Meal Type:{" "}
+                                            </Text>
+                                            {
+                                                formatMealType(
+                                                    hotel.mealType
                                                 )
                                             }
                                         </Text>

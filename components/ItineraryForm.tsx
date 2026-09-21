@@ -420,6 +420,7 @@ export default function ItineraryForm({
                     roomType: previousHotel?.roomType ?? "Deluxe Room With Balcony",
                     rooms: previousHotel?.rooms ?? 1,
                     mealPlan: previousHotel?.mealPlan ?? "MAP",
+                    mealType: "veg",
                 },
             ];
         });
@@ -478,6 +479,101 @@ export default function ItineraryForm({
     const buildItinerary = (): Itinerary => {
         const now = new Date().toISOString();
 
+        const exportVehicles = vehicleEnabled
+            ? vehicleOptions.filter(
+                (vehicle) =>
+                    vehicle.vehicleId
+            )
+            : [];
+
+        const exportPackages = packageEnabled
+            ? packageOptions.filter(
+                (option) =>
+                    option.packageId
+            )
+            : [];
+
+        const exportHotels = hotelEnabled
+            ? hotels
+            : undefined;
+
+        const contentValue =
+            editor?.getHTML() ?? "";
+
+        const isUnchanged =
+            mode === "edit" &&
+            initialItinerary &&
+            JSON.stringify({
+                title,
+                firmId,
+                regionId,
+                serviceId,
+                customerName,
+                destination,
+                startDate,
+                endDate,
+                pax,
+                vehicleEnabled,
+                vehicleOptions: exportVehicles,
+                packageOptions: exportPackages,
+                hotelEnabled,
+                hotels: exportHotels,
+                customInclusions: inclusions,
+                content: contentValue.replace(
+                    />\s+</g,
+                    "><"
+                ),
+            }) ===
+                JSON.stringify({
+                    title:
+                        initialItinerary.title,
+                    firmId:
+                        initialItinerary.firmId,
+                    regionId:
+                        initialItinerary.regionId,
+                    serviceId:
+                        initialItinerary.serviceId,
+                    customerName:
+                        initialItinerary.customerName,
+                    destination:
+                        initialItinerary.destination,
+                    startDate:
+                        initialItinerary.startDate,
+                    endDate:
+                        initialItinerary.endDate,
+                    pax:
+                        initialItinerary.pax,
+                    vehicleEnabled:
+                        initialItinerary.vehicleEnabled,
+                    vehicleOptions: (
+                        initialItinerary.vehicleOptions ??
+                        []
+                    ).filter(
+                        (vehicle) =>
+                            vehicle.vehicleId
+                    ),
+                    packageOptions: (
+                        initialItinerary.packageOptions ??
+                        []
+                    ).filter(
+                        (option) =>
+                            option.packageId
+                    ),
+                    hotelEnabled:
+                        initialItinerary.hotelEnabled,
+                    hotels: initialItinerary
+                        .hotelEnabled
+                        ? initialItinerary.hotels
+                        : undefined,
+                    customInclusions:
+                        initialItinerary.customInclusions ??
+                        [],
+                    content: (
+                        initialItinerary.content ??
+                        ""
+                    ).replace(/>\s+</g, "><"),
+                });
+
         return {
             id:
                 mode === "edit" && initialItinerary
@@ -499,27 +595,15 @@ export default function ItineraryForm({
 
             vehicleEnabled,
 
-            vehicleOptions: vehicleEnabled
-                ? vehicleOptions.filter(
-                    (vehicle) =>
-                        vehicle.vehicleId
-                )
-                : [],
+            vehicleOptions: exportVehicles,
 
-            packageOptions: packageEnabled
-                ? packageOptions.filter(
-                    (option) =>
-                        option.packageId
-                )
-                : [],
+            packageOptions: exportPackages,
 
             hotelEnabled,
 
-            hotels: hotelEnabled
-                ? hotels
-                : undefined,
+            hotels: exportHotels,
 
-            content: editor?.getHTML() ?? "",
+            content: contentValue,
 
             customInclusions: inclusions,
 
@@ -530,7 +614,9 @@ export default function ItineraryForm({
 
             updatedAt:
                 mode === "edit"
-                    ? now
+                    ? isUnchanged
+                        ? initialItinerary?.updatedAt
+                        : now
                     : undefined,
         };
     };
@@ -1854,54 +1940,91 @@ export default function ItineraryForm({
                                                 }
                                             />
 
-                                            <select
-                                                value={
-                                                    hotel.mealPlan ??
-                                                    ""
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    updateHotel(
-                                                        index,
-                                                        "mealPlan",
-                                                        e
-                                                            .target
-                                                            .value
-                                                    )
-                                                }
-                                                className={
-                                                    selectClass
-                                                }
-                                            >
-                                                <option value="">
-                                                    Select meal
-                                                    plan
-                                                </option>
+                                            <div className="space-y-3">
+                                                <select
+                                                    value={hotel.mealPlan ?? ""}
+                                                    onChange={(e) =>
+                                                        updateHotel(
+                                                            index,
+                                                            "mealPlan",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className={selectClass}
+                                                >
+                                                    <option value="">
+                                                        Select meal plan
+                                                    </option>
 
-                                                <option value="EP">
-                                                    EP – Room
-                                                    Only
-                                                </option>
+                                                    <option value="EP">
+                                                        EP – Room Only
+                                                    </option>
 
-                                                <option value="CP">
-                                                    CP –
-                                                    Breakfast
-                                                </option>
+                                                    <option value="CP">
+                                                        CP – Breakfast
+                                                    </option>
 
-                                                <option value="MAP">
-                                                    MAP –
-                                                    Breakfast +
-                                                    Dinner
-                                                </option>
+                                                    <option value="MAP">
+                                                        MAP – Breakfast + Dinner
+                                                    </option>
 
-                                                <option value="AP">
-                                                    AP –
-                                                    Breakfast +
-                                                    Lunch +
-                                                    Dinner
-                                                </option>
-                                            </select>
+                                                    <option value="AP">
+                                                        AP – Breakfast + Lunch + Dinner
+                                                    </option>
+                                                </select>
+
+                                                <div>
+                                                    <p className="mb-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                                        Meal Type
+                                                    </p>
+
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {[
+                                                            {
+                                                                value: "veg",
+                                                                label: "Veg",
+                                                            },
+                                                            {
+                                                                value: "veg+non-veg",
+                                                                label: "Veg + Non-Veg",
+                                                            },
+                                                            {
+                                                                value: "non-veg",
+                                                                label: "Non-Veg",
+                                                            },
+                                                        ].map((option) => {
+                                                            const checked =
+                                                                (hotel.mealType ?? "veg") ===
+                                                                option.value;
+
+                                                            return (
+                                                                <label
+                                                                    key={option.value}
+                                                                    className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition ${checked
+                                                                            ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+                                                                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-600"
+                                                                        }`}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={checked}
+                                                                        onChange={() =>
+                                                                            updateHotel(
+                                                                                index,
+                                                                                "mealType",
+                                                                                option.value
+                                                                            )
+                                                                        }
+                                                                        className="h-3.5 w-3.5 rounded border-slate-300"
+                                                                    />
+
+                                                                    {option.label}
+                                                                </label>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 )
