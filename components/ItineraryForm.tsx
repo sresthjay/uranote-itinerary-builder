@@ -417,7 +417,7 @@ export default function ItineraryForm({
 
                     // Carry forward common booking details
                     category: previousHotel?.category ?? "",
-                    roomType: previousHotel?.roomType ?? "Deluxe Room With Balcony",
+                    roomType: previousHotel?.roomType ?? "Deluxe Room",
                     rooms: previousHotel?.rooms ?? 1,
                     mealPlan: previousHotel?.mealPlan ?? "MAP",
                     mealType: "veg",

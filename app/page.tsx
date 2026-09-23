@@ -74,6 +74,8 @@ export default function HomePage() {
         useState(false);
     const [importing, setImporting] =
         useState(false);
+    const [dataOpen, setDataOpen] =
+        useState(false);
     const [
         backupPreview,
         setBackupPreview,
@@ -325,6 +327,113 @@ export default function HomePage() {
             </header>
 
             <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
+                {/* Data Backup */}
+                <section className="mb-8">
+                    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setDataOpen((current) => !current)
+                            }
+                            aria-expanded={dataOpen}
+                            className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-gray-50 dark:hover:bg-slate-800 sm:px-6"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400">
+                                    <svg
+                                        className="h-4 w-4"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" />
+                                        <path d="m3 8 9 5 9-5" />
+                                        <path d="M12 13v8" />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-sm font-semibold tracking-tight text-gray-950 dark:text-slate-50">
+                                        Data backup
+                                    </h2>
+
+                                    <p className="text-[11px] font-medium tracking-wide text-gray-400 dark:text-slate-500">
+                                        Export / import all
+                                        itineraries
+                                    </p>
+                                </div>
+                            </div>
+
+                            <svg
+                                className={`h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200 dark:text-slate-500 ${dataOpen ? "rotate-180" : ""}`}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                            >
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </button>
+
+                        {dataOpen && (
+                            <div className="border-t border-gray-200 px-5 py-5 dark:border-slate-800 sm:px-6">
+                                <p className="text-sm leading-6 text-gray-500 dark:text-slate-400">
+                                    Export all itineraries stored on
+                                    this device to a backup file, or
+                                    restore them from a backup on
+                                    another device.
+                                </p>
+
+                                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleExportData}
+                                        disabled={exporting}
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+                                    >
+                                        {exporting
+                                            ? "Exporting..."
+                                            : "Export Data"}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            fileInputRef.current?.click()
+                                        }
+                                        disabled={importing}
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-slate-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-slate-300 transition hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        {importing
+                                            ? "Importing..."
+                                            : "Import Data"}
+                                    </button>
+                                </div>
+
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".json,application/json"
+                                    className="hidden"
+                                    onChange={handleImportFile}
+                                />
+
+                                {backupMessage && (
+                                    <p
+                                        className={`mt-4 text-sm ${backupMessage.type === "success"
+                                            ? "text-emerald-600 dark:text-emerald-400"
+                                            : "text-red-600 dark:text-red-400"
+                                        }`}
+                                    >
+                                        {backupMessage.text}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </section>
+
                 {/* Hero */}
                 <section className="mb-8">
                     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -558,69 +667,6 @@ export default function HomePage() {
                             )}
                         </div>
                     )}
-
-                {/* Data Backup */}
-                <section className="mt-10">
-                    <div className="rounded-2xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm sm:p-6">
-                        <div>
-                            <h2 className="text-base font-semibold tracking-tight text-gray-950 dark:text-slate-50">
-                                Data
-                            </h2>
-
-                            <p className="mt-1 max-w-xl text-sm leading-6 text-gray-500 dark:text-slate-400">
-                                Export all itineraries stored on
-                                this device to a backup file, or
-                                restore them from a backup on
-                                another device.
-                            </p>
-                        </div>
-
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                            <button
-                                type="button"
-                                onClick={handleExportData}
-                                disabled={exporting}
-                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
-                            >
-                                {exporting
-                                    ? "Exporting..."
-                                    : "Export Data"}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    fileInputRef.current?.click()
-                                }
-                                disabled={importing}
-                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-slate-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-slate-300 transition hover:border-gray-300 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                                {importing
-                                    ? "Importing..."
-                                    : "Import Data"}
-                            </button>
-                        </div>
-
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".json,application/json"
-                            className="hidden"
-                            onChange={handleImportFile}
-                        />
-
-                        {backupMessage && (
-                            <p
-                                className={`mt-4 text-sm ${backupMessage.type === "success"
-                                    ? "text-emerald-600 dark:text-emerald-400"
-                                    : "text-red-600 dark:text-red-400"
-                                }`}
-                            >
-                                {backupMessage.text}
-                            </p>
-                        )}
-                    </div>
-                </section>
             </div>
 
             {/* Import Confirmation */}
