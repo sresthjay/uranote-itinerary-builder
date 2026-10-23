@@ -73,7 +73,7 @@ export const regions: Region[] = [
         ],
 
         exclusions: [
-            // Uttarakhand-specific exclusions
+            "Special darshan, VIP entry, religious offerings, donations, or other temple-related charges unless specifically mentioned in the inclusions",
         ],
 
         terms: [
@@ -157,7 +157,6 @@ export const regions: Region[] = [
         terms: [
             "Please take a printout of the final itinerary and carry it with you during the tour. The final itinerary and voucher shared with you will be considered the applicable reference for the confirmed services.",
 
-
             "Sightseeing and travel timings in Ladakh may vary depending on the destination, season, weather conditions, road conditions, local regulations, security requirements, and operating conditions. The itinerary will be operated within practical and safe travel conditions.",
 
             "All sightseeing places mentioned in the confirmed package will be covered once during the tour. A particular sightseeing location will not normally be repeated unless specifically agreed in advance.",
@@ -224,4 +223,98 @@ export const regions: Region[] = [
         ],
 
     },
+
+
+    {
+        id: "gujarat",
+        name: "Gujarat",
+
+        inclusions: [
+
+        ],
+
+        exclusions: [
+            "Wildlife safari permits, entry tickets, monument tickets, boating charges, or other activity charges unless specifically mentioned in the inclusions",
+            "Special darshan, VIP entry, religious offerings, donations, or other temple-related charges unless specifically mentioned in the inclusions",
+        ],
+
+        terms: [
+            "Please take a printout of the final itinerary and carry it with you during the tour. The final itinerary and voucher shared with you will be considered the applicable reference for the confirmed services.",
+
+            "Sightseeing and travel timings in Gujarat may vary depending on the destination, season, weather conditions, road conditions, traffic, local regulations, festival schedules, and operating conditions. The itinerary will be operated within practical and reasonable travel conditions.",
+
+            "All sightseeing places mentioned in the confirmed package will be covered once during the tour. A particular sightseeing location will not normally be repeated unless specifically agreed in advance.",
+
+            "Gujarat experiences significant seasonal variations in temperature and weather conditions. During summer, particularly from April to June, temperatures may be high in several parts of the state. Customers are advised to carry appropriate clothing, sun protection, sufficient drinking water, and personal essentials suitable for the prevailing weather.",
+
+            "During the monsoon season, particularly from June to September, heavy rainfall, waterlogging, road closures, flooding, and adverse weather conditions may affect travel and sightseeing. The itinerary may be modified, delayed, curtailed, or rearranged where required for safety or operational reasons.",
+
+            "The Rann of Kutch, including the White Rann, is a seasonal destination. Access to the White Rann and surrounding areas may depend on prevailing weather conditions, water levels, salt desert conditions, local administration regulations, and applicable entry permissions. The appearance and accessibility of the White Rann may vary throughout the year.",
+
+            "Visits to the White Rann, Dhordo, and other areas within or near the Rann of Kutch may be subject to applicable entry permits, security restrictions, local administration directions, and seasonal operating conditions. Access to a particular viewpoint or location cannot be guaranteed solely because it is mentioned in the itinerary.",
+
+            "Rann Utsav and other seasonal festivals or events are subject to their respective operating schedules, dates, venue arrangements, and availability. Festival dates, cultural performances, activities, and event schedules may change without prior notice based on decisions of the organizers or competent authorities.",
+
+            "Accommodation at Tent City, Dhordo, or other seasonal camps and temporary accommodation facilities is subject to availability and operating dates. In case of non-availability, closure, or operational restrictions, an alternative accommodation of a comparable category may be arranged where feasible, subject to applicable charges and customer approval.",
+
+            "Gir National Park, Gir Wildlife Sanctuary, Devaliya Safari Park, and other wildlife destinations are subject to forest department regulations, safari schedules, permit availability, weather conditions, and wildlife management requirements. Safari bookings are subject to confirmation by the relevant authorities and cannot be guaranteed solely because they are mentioned in the itinerary.",
+
+            "Wildlife sightings, including Asiatic lions, leopards, deer, birds, and other animals, are entirely dependent on natural conditions. No specific animal sighting, wildlife encounter, safari route, or viewing location can be guaranteed.",
+
+            "Wildlife safaris may be suspended, cancelled, restricted, or modified due to adverse weather, forest department instructions, wildlife protection measures, breeding seasons, fire hazards, operational restrictions, or other circumstances beyond the service provider's control.",
+
+            "Customers must comply with all forest department regulations, safari vehicle instructions, designated routes, speed restrictions, photography restrictions, and wildlife protection requirements. Customers must not feed, disturb, approach, or attempt to interact with wildlife. Any penalty or liability arising from a customer's violation of applicable regulations will be borne by the customer.",
+
+            "Certain wildlife destinations and protected areas in Gujarat may have restricted operating days, seasonal closures, limited safari slots, or mandatory advance booking requirements. Customers are responsible for providing accurate traveller information and identification documents required for safari bookings and entry formalities.",
+
+            "Temple visits and religious destinations such as Dwarka, Somnath, Ambaji, Dakor, Pavagadh, and other pilgrimage locations are subject to temple timings, crowd conditions, religious ceremonies, security arrangements, local regulations, and special event schedules. Darshan timings and access to particular areas within a temple may change without prior notice.",
+
+            "Special darshan, VIP darshan, priority entry, religious ceremonies, offerings, donations, and other temple-related services are not guaranteed unless specifically mentioned in the confirmed quotation. Any such services are subject to availability, temple administration rules, and applicable charges.",
+
+            "During religious festivals, public holidays, special temple events, and major tourist seasons, destinations such as Dwarka, Somnath, Ambaji, Dakor, and other pilgrimage locations may experience heavy crowds, traffic restrictions, parking limitations, and extended waiting times. The number of sightseeing places covered within the available time may be affected.",
+
+            "Travel to coastal destinations such as Dwarka, Somnath, Porbandar, Diu, Mandvi, and other coastal locations is subject to prevailing weather conditions, road conditions, local regulations, and operational feasibility. Access to beaches, viewpoints, coastal areas, or particular activities may be restricted due to weather, tides, security requirements, or local administration directions.",
+
+            "Beach activities, water sports, boating, ferry services, and other marine activities are subject to weather conditions, sea conditions, operator availability, safety requirements, and applicable local regulations. Such activities may be cancelled, delayed, or restricted without prior notice where required for safety.",
+
+            "The specific vehicle requested is subject to availability and applicable local transport regulations. If the requested vehicle is unavailable or unsuitable for a particular route, a similar vehicle of comparable category may be provided or an alternative vehicle may be arranged where operationally feasible.",
+
+            "Vehicle travel times in Gujarat may vary significantly due to road conditions, traffic congestion, construction work, diversions, weather conditions, local events, and other operational factors. Published or estimated travel times should therefore be treated as approximate.",
+
+            "During periods of heavy tourist traffic, particularly around Ahmedabad, Dwarka, Somnath, Statue of Unity, Gir, Bhuj, Dhordo, and other popular destinations, traffic congestion, parking restrictions, security checks, and local traffic management may affect sightseeing schedules and travel timings.",
+
+            "Visits to the Statue of Unity, Sardar Sarovar Dam, viewing galleries, observation decks, museums, gardens, boat rides, and other associated attractions are subject to the operating schedules, ticket availability, security regulations, weather conditions, and restrictions imposed by the relevant authorities. Access to a particular attraction or activity cannot be guaranteed unless specifically confirmed.",
+
+            "The Statue of Unity complex and other major tourist attractions may have separate entry tickets, activity tickets, vehicle parking charges, and reservation requirements. Such charges will be included only where specifically mentioned in the confirmed quotation.",
+
+            "Gujarat has certain protected areas, wildlife sanctuaries, marine protected areas, and environmentally sensitive locations that are subject to entry restrictions, wildlife regulations, environmental requirements, and other applicable government directions. Access to such areas will be subject to compliance with the prevailing regulations.",
+
+            "Customers are responsible for providing accurate identification and traveller information required for hotel check-ins, safari bookings, attraction reservations, or other mandatory formalities. Any delay, denial, restriction, or additional cost arising from incorrect, incomplete, or unavailable documentation will be the customer's responsibility.",
+
+            "Entry requirements, safari regulations, permitted routes, operating schedules, attraction timings, and other local regulations may change from time to time based on directions issued by the Gujarat Government, forest department, local administration, security authorities, or other competent authorities. Any such changes will apply to the confirmed tour where relevant.",
+
+            "The package and quotation are prepared according to the requirements shared by the customer. The quotation remains customizable only until it is finalized. Once the package and quotation are confirmed, changes may be subject to availability and additional charges.",
+
+            "If a customer chooses not to use any of the confirmed services after commencement of the tour, the customer will remain liable for the amount specified in the confirmed voucher or payment schedule. Unused services are not automatically eligible for a refund.",
+
+            "Customers are advised not to modify the confirmed tour plan during the trip. If the number of travel days is reduced after commencement of the tour, the total confirmed package price will not automatically be reduced.",
+
+            "Any sightseeing location, route, permit, activity, service, or transportation not included in the final confirmed quotation or itinerary will be treated as an additional service and may attract additional charges. Such additions are subject to availability, applicable regulations, weather conditions, and operational feasibility.",
+
+            "If a customer chooses to terminate or discontinue the tour before the scheduled completion date, the applicable charges and payment obligations will be governed by the confirmed voucher and cancellation policy.",
+
+            "We take reasonable care in providing transportation, drivers, hotels, guides, and other confirmed services. Customers are expected to treat drivers, hotel staff, guides, local service providers, and other service partners respectfully. In case of any service-related concern, customers should contact us promptly so that we can assist in resolving the issue.",
+
+            "If payment is not made according to the agreed payment schedule or confirmed voucher, the service provider reserves the right to suspend or terminate the pending services, subject to the applicable terms and circumstances.",
+
+            "The service provider will not be responsible for loss, theft, damage, or misplacement of personal belongings. Customers are responsible for keeping their valuables and personal belongings secure throughout the tour.",
+
+            "Mobile connectivity, internet access, banking facilities, fuel availability, and other essential services may be limited or unavailable in certain remote areas of Gujarat, particularly in parts of Kutch, coastal regions, and areas surrounding wildlife destinations. Customers should plan accordingly and carry sufficient essentials for remote-area travel.",
+
+            "Air-conditioning in vehicles will be operated subject to the vehicle provided, prevailing weather conditions, vehicle operating conditions, and applicable local restrictions. During extreme temperatures or adverse operating conditions, vehicle air-conditioning may be limited or unavailable.",
+
+            "For any assistance or service-related concern before or during the tour, please contact the contact details provided in your itinerary or voucher. Our team will make reasonable efforts to assist and resolve the issue at the earliest.",
+        ],
+    },
+
 ];

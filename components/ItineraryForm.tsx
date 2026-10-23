@@ -420,7 +420,7 @@ export default function ItineraryForm({
                     roomType: previousHotel?.roomType ?? "Deluxe Room",
                     rooms: previousHotel?.rooms ?? 1,
                     mealPlan: previousHotel?.mealPlan ?? "MAP",
-                    mealType: "veg",
+                    mealType: previousHotel?.mealType ?? "veg",
                 },
             ];
         });

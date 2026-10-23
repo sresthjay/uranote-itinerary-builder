@@ -44,7 +44,14 @@ export const vehicles: Vehicle[] = [
     {
         id: "amaze",
         name: "Honda Amaze",
-        carrier: false,
+        carrier: true,
+        seatingCapacity: 4,
+    },
+
+    {
+        id: "aura",
+        name: "Hyundai Aura",
+        carrier: true,
         seatingCapacity: 4,
     },
 

@@ -21,6 +21,10 @@ export const metadata: Metadata = {
     applicationName: "Uranote Itinerary Builder",
     title: "Uranote Itinerary Builder",
     description: "Create, manage and export travel itineraries with Uranote.",
+    robots: {
+        index: false,
+        follow: false,
+    },
     appleWebApp: {
         capable: true,
         title: "Uranote Itinerary Builder",
