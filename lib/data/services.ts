@@ -52,7 +52,7 @@ export const services: Service[] = [
         */
 
         paymentPolicy: [
-            "A 20% advance payment is required to confirm a taxi-only booking.",
+            "A 20% advance payment is required to confirm a taxi-only booking. 10% or below advance will be considered as token and is non-refundable. ",
 
             "The remaining balance is payable during the tour as per the payment schedule we'll share with you before the trip.",
 

@@ -91,10 +91,24 @@ export const vehicles: Vehicle[] = [
     },
 
     {
+        id: "crysta-hycross-7",
+        name: "Crysta Hycross",
+        carrier: true,
+        seatingCapacity: 7,
+    },
+
+    {
         id: "scorpio",
         name: "M Scorpio",
         carrier: true,
         seatingCapacity: 8,
+    },
+
+    {
+        id: "tempo-traveller-10",
+        name: "Maharaja Traveller 1x1",
+        carrier: true,
+        seatingCapacity: 10,
     },
 
     {

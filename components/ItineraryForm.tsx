@@ -6,7 +6,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 
-import { exportItineraryJson } from "@/lib/export/exportJson";
 import { exportItineraryPdf } from "@/lib/export/exportPdf";
 
 import {
@@ -128,7 +127,7 @@ export default function ItineraryForm({
 
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [exporting, setExporting] = useState<
-        "json" | "pdf" | null
+        "pdf" | null
     >(null);
 
     const [customerName, setCustomerName] = useState(
@@ -623,19 +622,6 @@ export default function ItineraryForm({
 
     /* ---------------- Export ---------------- */
 
-    const handleExportJson = () => {
-        if (!editor) {
-            alert(
-                "Itinerary editor is not ready yet."
-            );
-            return;
-        }
-
-        const itinerary = buildItinerary();
-
-        exportItineraryJson(itinerary);
-    };
-
     const handleExportPdf = () => {
         if (!editor) {
             alert(
@@ -862,29 +848,6 @@ export default function ItineraryForm({
                                                 : "Save"}
                                 </button>
                             </div>
-
-
-
-                            <button
-                                type="button"
-                                onClick={async () => {
-                                    setExporting("json");
-
-                                    try {
-                                        await handleExportJson();
-
-                                        await new Promise((resolve) =>
-                                            setTimeout(resolve, 1000)
-                                        );
-                                    } finally {
-                                        setExporting(null);
-                                    }
-                                }}
-                                disabled={exporting !== null}
-                                className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:py-2"
-                            >
-                                {exporting === "json" ? "Exporting..." : "JSON"}
-                            </button>
 
                             <div className="relative">
                                 <button

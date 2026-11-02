@@ -50,14 +50,14 @@ export const firms: Firm[] = [
     },
 
     {
-        id: "explore",
-        name: "Explore My Bharat",
+        id: "cabservice",
+        name: "Himachal Cab Service",
 
-        phone: "+91 62305 57851",
-        email: "exploremybharat@gmail.com",
-        website: "www.exploremybharat.com",
-        address: "Kashyap Complex, Shop No. 3, Ser Charag, Jaunaji, Solan, Himachal Pradesh 173212",
-        logo: "/firms/explore-my-bharat/logo.jpeg",
+        phone: "+91 70184 09957",
+        email: "himachalcabservice.co.in@gmail.com",
+        website: "www.himachalcabservice.co.in",
+        address: "Kashyap Complex, Jaunaji, Solan, Himachal Pradesh 173212",
+        logo: "/firms/himachal-cab-service/logo.jpeg",
 
         paymentMethods: [
             "Bank Transfer",
@@ -67,13 +67,41 @@ export const firms: Firm[] = [
         ],
 
         bankDetails: {
-            accountName: "Explore My Bharat",
-            accountNumber: "409001680639",
-            bankName: "RBL Bank",
-            ifsc: "RATN0000319",
-            branch: "Solan, H.P.",
-            upi: "6230557851@upi",
-            upiQrCode: "",
+            // accountName: "Mystical Himcahal",
+            // accountNumber: "50200092975718",
+            // bankName: "HDFC Bank",
+            // ifsc: "HDFC0000387",
+            // branch: "Solan, H.P.",
+            // upi: "01ankitthakur-1@okhdfcbank",
+            upiQrCode: "/firms/himachal-cab-service/qr.jpeg",
+        },
+    },
+
+    {
+        id: "cabsonline",
+        name: "Himachal Cabs Online",
+
+        phone: "+91 93173 24669",
+        email: "himachalcabsonline01@gmail.com",
+        website: "www.himachalcabsonline.co.in",
+        address: "Kufri-Chail Rd, Shimla, Himachal Pradesh 173212",
+        logo: "/firms/himachal-cabs-online/logo.png",
+
+        paymentMethods: [
+            "Bank Transfer",
+            "UPI",
+            "Debit/Credit Card",
+
+        ],
+
+        bankDetails: {
+            accountName: "Jayant Thakur",
+            accountNumber: "7745816996",
+            bankName: "Kotak Bank",
+            ifsc: "KKBK0004397",
+            branch: "The Mall Shimla, H.P.",
+            upi: "9816157851@kotakbank",
+            upiQrCode: "/firms/himachal-cabs-online/qr.jpg",
         },
     },
 
