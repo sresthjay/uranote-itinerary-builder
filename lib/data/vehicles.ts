@@ -126,10 +126,10 @@ export const vehicles: Vehicle[] = [
     },
 
     {
-        id: "tempo-traveller-16",
+        id: "tempo-traveller-17",
         name: "Traveller",
         carrier: true,
-        seatingCapacity: 16,
+        seatingCapacity: 17,
     },
 
     {

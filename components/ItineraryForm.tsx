@@ -215,37 +215,9 @@ export default function ItineraryForm({
     const [firmId, setFirmId] = useState(
         initialItinerary?.firmId ??
         defaultFirm?.id ??
+        firms[0]?.id ??
         ""
     );
-
-    const [firmSearch, setFirmSearch] = useState(() => {
-        if (initialItinerary?.firmId) {
-            return (
-                firms.find(
-                    (firm) =>
-                        firm.id ===
-                        initialItinerary.firmId
-                )?.name ?? ""
-            );
-        }
-
-        return defaultFirm?.name ?? "";
-    });
-
-    const [showFirmResults, setShowFirmResults] =
-        useState(false);
-
-    const filteredFirms = useMemo(() => {
-        const term = firmSearch.trim().toLowerCase();
-
-        if (!term) return [];
-
-        return firms.filter((firm) =>
-            firm.name
-                .toLowerCase()
-                .startsWith(term)
-        );
-    }, [firmSearch]);
 
     const editor = useEditor({
         extensions: [
@@ -1051,107 +1023,31 @@ export default function ItineraryForm({
                         </div>
 
                         {/* Firm */}
-                        <div className="relative">
+                        <div>
                             <label className="mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Firm
                             </label>
 
-                            <input
-                                value={
-                                    firmSearch
+                            <select
+                                value={firmId}
+                                onChange={(e) =>
+                                    setFirmId(
+                                        e.target.value
+                                    )
                                 }
-                                onChange={(e) => {
-                                    const value =
-                                        e.target
-                                            .value;
-
-                                    setFirmSearch(
-                                        value
-                                    );
-
-                                    setFirmId("");
-
-                                    setShowFirmResults(
-                                        value.trim()
-                                            .length >
-                                        0
-                                    );
-                                }}
-                                onFocus={() => {
-                                    if (
-                                        firmSearch.trim()
-                                    ) {
-                                        setShowFirmResults(
-                                            true
-                                        );
-                                    }
-                                }}
-                                onBlur={() => {
-                                    setTimeout(
-                                        () => {
-                                            setShowFirmResults(
-                                                false
-                                            );
-                                        },
-                                        150
-                                    );
-                                }}
-                                placeholder="Search firm..."
                                 className={
-                                    inputClass
+                                    selectClass
                                 }
-                                autoComplete="off"
-                            />
-
-                            {showFirmResults &&
-                                firmSearch.trim() && (
-                                    <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-56 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-lg">
-                                        {filteredFirms.length >
-                                            0 ? (
-                                            filteredFirms.map(
-                                                (
-                                                    firm
-                                                ) => (
-                                                    <button
-                                                        key={
-                                                            firm.id
-                                                        }
-                                                        type="button"
-                                                        onMouseDown={(
-                                                            e
-                                                        ) => {
-                                                            e.preventDefault();
-
-                                                            setFirmId(
-                                                                firm.id
-                                                            );
-
-                                                            setFirmSearch(
-                                                                firm.name
-                                                            );
-
-                                                            setShowFirmResults(
-                                                                false
-                                                            );
-                                                        }}
-                                                        className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800"
-                                                    >
-                                                        {
-                                                            firm.name
-                                                        }
-                                                    </button>
-                                                )
-                                            )
-                                        ) : (
-                                            <p className="px-3 py-2.5 text-sm text-slate-500 dark:text-slate-400">
-                                                No
-                                                matching
-                                                firm
-                                                found.
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
+                            >
+                                {firms.map((firm) => (
+                                    <option
+                                        key={firm.id}
+                                        value={firm.id}
+                                    >
+                                        {firm.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         {/* Region */}

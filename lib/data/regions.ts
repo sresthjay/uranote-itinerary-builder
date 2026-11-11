@@ -65,6 +65,70 @@ export const regions: Region[] = [
     },
 
     {
+        id: "kashmir",
+        name: "Kashmir",
+
+        inclusions: [
+            "30-minute Shikara ride in dal lake",
+        ],
+
+        exclusions: [
+            "Gulmarg Gondola ride/tickets.",
+            "Local union taxi charges for sightseeing in Pahalgam, including Aru Valley, Betaab Valley, and Chandanwari, wherever applicable.",
+            "Local union taxi charges for sightseeing in Sonamarg, including Zero Point and other restricted areas, wherever applicable.",
+            "Local transport, snow vehicles, or other locally operated vehicles required due to seasonal, weather-related, or local union restrictions, wherever applicable.",
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Kashmir – Regional Terms & Important Instructions
+        |--------------------------------------------------------------------------
+        */
+
+        terms: [
+            "Please take a printout of the final itinerary and carry it with you during the tour. The final itinerary and voucher shared with you will be considered the applicable reference for the confirmed services.",
+
+            "Sightseeing timings in Kashmir are generally 9:00 a.m. to 5:00 p.m. during the winter season and 8:00 a.m. to 6:00 p.m. during the rest of the year. Sightseeing will be conducted within the applicable operating hours.",
+
+            "All sightseeing places mentioned in the confirmed package will be covered once during the tour. A particular sightseeing location will not normally be repeated unless specifically agreed in advance.",
+
+            "During winter and adverse weather conditions, access to certain sightseeing locations may be restricted or blocked due to snowfall, heavy rainfall, landslides, road conditions, government restrictions, or other circumstances beyond our control. In such cases, the affected sightseeing may not be possible.",
+
+            "During periods of heavy tourist traffic, particularly in popular destinations such as Srinagar, Gulmarg, Pahalgam, and Sonamarg, traffic congestion may affect the number of sightseeing places that can be covered within the available time. Every reasonable effort will be made to cover the important places included in the confirmed itinerary.",
+
+            "The specific vehicle requested is subject to availability. If the requested vehicle is unavailable, a similar vehicle of comparable category may be provided.",
+
+            "Gulmarg, Sonamarg, and other high-altitude sightseeing areas are subject to seasonal accessibility, weather conditions, government regulations, local permissions, and road conditions. Access may be restricted or unavailable during adverse weather or whenever authorities restrict tourist movement.",
+
+            "Certain sightseeing areas in Kashmir may have local vehicle restrictions or designated vehicle arrangements. Where applicable, customers may need to use locally operated vehicles or other permitted modes of transportation at an additional charge unless specifically included in the confirmed package.",
+
+            "The Shikara ride included in the package is for 30 minutes and is subject to weather conditions, lake conditions, local operating restrictions, and availability. Any additional duration or additional Shikara ride beyond the included 30 minutes will be chargeable separately.",
+
+            "Kashmir involves significant changes in altitude, temperature, and road conditions. Some travelers may experience discomfort such as headache, nausea, motion sickness, or stomach-related issues. Travelers are advised to carry any personal medicines they may require during the tour.",
+
+            "The package and quotation are prepared according to the requirements shared by the customer. The quotation remains customizable only until it is finalized. Once the package and quotation are confirmed, changes may be subject to availability and additional charges.",
+
+            "If a customer chooses not to use any of the confirmed services after commencement of the tour, the customer will remain liable for the amount specified in the confirmed voucher or payment schedule. Unused services are not automatically eligible for a refund.",
+
+            "Customers are advised not to modify the confirmed tour plan during the trip. If the number of travel days is reduced after commencement of the tour, the total confirmed package price will not automatically be reduced.",
+
+            "Any sightseeing location or service not included in the final confirmed quotation or itinerary will be treated as an additional service and may attract additional charges. Such additions are subject to availability, local conditions, and operational feasibility.",
+
+            "If a customer chooses to terminate or discontinue the tour before the scheduled completion date, the applicable charges and payment obligations will be governed by the confirmed voucher and cancellation policy.",
+
+            "We take reasonable care in providing transportation, drivers, hotels, and other confirmed services. Customers are expected to treat drivers, hotel staff, and service partners respectfully. In case of any service-related concern, customers should contact us promptly so that we can assist in resolving the issue.",
+
+            "If payment is not made according to the agreed payment schedule or confirmed voucher, the service provider reserves the right to suspend or terminate the pending services, subject to the applicable terms and circumstances.",
+
+            "The service provider will not be responsible for loss, theft, damage, or misplacement of personal belongings. Customers are responsible for keeping their valuables and personal belongings secure throughout the tour.",
+
+            "Air-conditioning will be switched off in certain hilly and high-altitude areas due to vehicle operating conditions, road conditions, or local regulations. Where applicable, additional charges for AC operation in such areas may be payable directly on the spot.",
+
+            "For any assistance or service-related concern before or during the tour, please contact the contact details provided in your itinerary or voucher. Our team will make reasonable efforts to assist and resolve the issue at the earliest.",
+        ],
+    },
+
+    {
         id: "uttarakhand",
         name: "Uttarakhand",
 
